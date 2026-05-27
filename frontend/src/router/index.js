@@ -13,7 +13,7 @@ import NotificationsView from "../views/NotificationsView.vue";
 import AccountView from "../views/AccountView.vue";
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/",

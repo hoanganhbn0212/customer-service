@@ -86,9 +86,13 @@ npm run dev
 Frontend chay tai: `http://localhost:5173`  
 Frontend da cau hinh proxy `/api` sang backend `http://localhost:8082`.
 
-## Deploy miễn phí (Vercel + Render)
+## Chạy bằng Docker (khuyến nghị)
 
-Frontend **Vercel**, API **Render** (free): [deploy/VERCEL.md](deploy/VERCEL.md)
+```powershell
+.\scripts\docker-up.ps1
+```
+
+Mở http://localhost:8080 — xem [DOCKER.md](DOCKER.md)
 
 ## Deploy production (domain + HTTPS)
 

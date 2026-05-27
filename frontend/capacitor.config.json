@@ -1,0 +1,11 @@
+{
+  "appId": "com.customerservice.layla",
+  "appName": "Layla Care",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": true
+  },
+  "server": {
+    "androidScheme": "http"
+  }
+}

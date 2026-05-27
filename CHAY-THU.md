@@ -1,6 +1,30 @@
 # Chạy thử nhanh (Windows)
 
-## Điện thoại xoay / load lâu?
+## App Android (APK cài USB)
+
+```powershell
+.\scripts\docker-up.ps1
+.\scripts\build-android.ps1
+```
+
+Chi tiết: [CAPACITOR.md](CAPACITOR.md)
+
+---
+
+## Docker — một lệnh (khuyến nghị)
+
+```powershell
+.\scripts\docker-up.ps1
+```
+
+- PC: **http://localhost:8080**
+- Điện thoại (cùng Wi‑Fi): **http://\<IP\>:8080**
+
+Xem [DOCKER.md](DOCKER.md)
+
+---
+
+## Điện thoại xoay / load lâu? (dev npm)
 
 Dùng **bản build** (nhanh hơn `npm run dev` rất nhiều):
 
@@ -27,7 +51,7 @@ cd C:\Users\ADMIN\AnhDH\customer-service
 
 Script tự:
 
-1. Bật PostgreSQL (`docker compose up -d`)
+1. Bật PostgreSQL (`docker compose up -d postgres`)
 2. Mở backend (cửa sổ mới) nếu chưa chạy
 3. Chạy frontend tại **http://localhost:5173**
 
@@ -41,9 +65,9 @@ Script tự:
 
 ---
 
-## Deploy miễn phí online (Vercel + Render)
+## Deploy lên VPS (domain / IP)
 
-Xem **[deploy/VERCEL.md](deploy/VERCEL.md)** — frontend Vercel, API Render, không cần VPS.
+Xem [deploy/HUONG-DAN-VI.md](deploy/HUONG-DAN-VI.md) hoặc `deploy/deploy-http.sh`
 
 ---
 

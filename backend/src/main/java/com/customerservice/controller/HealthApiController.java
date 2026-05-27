@@ -5,9 +5,11 @@ import com.customerservice.model.HealthResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+/** Health check — frontend: {@code HealthService} → DashboardView. */
 @RestController
 public class HealthApiController implements HealthApi {
 
+    /** GET /api/health */
     @Override
     public ResponseEntity<HealthResponse> getHealth() {
         HealthResponse response = new HealthResponse();

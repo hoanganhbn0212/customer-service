@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+/** API xác thực — frontend: {@code AuthService} → LoginView. */
 @RestController
 public class AuthApiController implements AuthApi {
 
@@ -33,6 +34,7 @@ public class AuthApiController implements AuthApi {
         this.appUserRepository = appUserRepository;
     }
 
+    /** POST /api/v1/auth/register — Đăng ký tài khoản. */
     @Override
     public ResponseEntity<RegisterResponse> register(RegisterRequest registerRequest) {
         AppUser user = authService.register(registerRequest.getUserName(), registerRequest.getPassword());
@@ -43,6 +45,7 @@ public class AuthApiController implements AuthApi {
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
+    /** POST /api/v1/auth/login — Đăng nhập, trả JWT. */
     @Override
     public ResponseEntity<LoginResponse> login(LoginRequest loginRequest) {
         AppUser user = authService.authenticate(loginRequest.getUserName(), loginRequest.getPassword());
@@ -55,6 +58,7 @@ public class AuthApiController implements AuthApi {
         return ResponseEntity.ok(body);
     }
 
+    /** GET /api/v1/me — Profile user hiện tại (chưa gọi từ UI). */
     @Override
     public ResponseEntity<UserProfile> getCurrentUser() {
         var authUser = AuthContext.requireAuthenticated();

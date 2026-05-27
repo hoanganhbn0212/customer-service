@@ -3,8 +3,10 @@ import vue from "@vitejs/plugin-vue";
 
 // VITE_DEVICE=1: tat HMR — on dinh hon khi mo tu dien thoai qua Wi-Fi
 const forDevice = process.env.VITE_DEVICE === "1";
+const forCapacitor = process.env.CAPACITOR === "1";
 
 export default defineConfig({
+  base: forCapacitor ? "./" : "/",
   plugins: [vue()],
   server: {
     host: true,

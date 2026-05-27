@@ -10,12 +10,11 @@ import type { UserProfile } from '../models/UserProfile';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
+/** Xác thực — token qua `OpenAPI.TOKEN` (main.js). */
 export class AuthService {
     /**
-     * Register a new account
-     * @param requestBody
-     * @returns RegisterResponse Registered
-     * @throws ApiError
+     * POST /api/v1/auth/register — Đăng ký tài khoản mới.
+     * @usedBy views/LoginView.vue (tab đăng ký)
      */
     public static register(
         requestBody: RegisterRequest,
@@ -31,10 +30,8 @@ export class AuthService {
         });
     }
     /**
-     * Login with userName and password
-     * @param requestBody
-     * @returns LoginResponse Login successful
-     * @throws ApiError
+     * POST /api/v1/auth/login — Đăng nhập, trả JWT + role (lưu session).
+     * @usedBy views/LoginView.vue
      */
     public static login(
         requestBody: LoginRequest,
@@ -50,9 +47,8 @@ export class AuthService {
         });
     }
     /**
-     * Current user profile
-     * @returns UserProfile OK
-     * @throws ApiError
+     * GET /api/v1/me — Profile user đang đăng nhập.
+     * @usedBy Chưa dùng UI (session lấy từ response login)
      */
     public static getCurrentUser(): CancelablePromise<UserProfile> {
         return __request(OpenAPI, {

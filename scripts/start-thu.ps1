@@ -24,7 +24,7 @@ Write-Host ""
 # 1) PostgreSQL
 Write-Host "[1/3] PostgreSQL (Docker)..." -ForegroundColor Cyan
 if (Get-Command docker -ErrorAction SilentlyContinue) {
-    docker compose up -d 2>&1 | Out-Host
+    docker compose up -d postgres 2>&1 | Out-Host
     $ready = $false
     for ($i = 0; $i -lt 40; $i++) {
         $status = docker inspect --format "{{.State.Health.Status}}" customer-service-postgres 2>$null

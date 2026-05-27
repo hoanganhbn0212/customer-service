@@ -17,7 +17,7 @@ Set-Location $root
 Write-Host "=== Che do dien thoai (build + preview) ===" -ForegroundColor Cyan
 
 if (Get-Command docker -ErrorAction SilentlyContinue) {
-    docker compose up -d 2>&1 | Out-Null
+    docker compose up -d postgres 2>&1 | Out-Null
 }
 
 if (-not (Test-BackendHealth)) {

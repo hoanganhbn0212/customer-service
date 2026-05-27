@@ -18,6 +18,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * API admin user + gói — frontend: {@code AdminService}, {@code adminApi.js}
+ * → UsersAdminView, SubscriptionsAdminView.
+ */
 @RestController
 public class AdminUserApiController implements AdminApi {
 
@@ -35,17 +39,20 @@ public class AdminUserApiController implements AdminApi {
         this.adminPackageAdminService = adminPackageAdminService;
     }
 
+    /** GET /api/v1/admin/users */
     @Override
     public ResponseEntity<List<UserAccountResponse>> listUsers() {
         return ResponseEntity.ok(adminUserService.listUsers());
     }
 
+    /** POST /api/v1/admin/users */
     @Override
     public ResponseEntity<UserAccountResponse> createUser(AdminCreateUserRequest adminCreateUserRequest) {
         UserAccountResponse created = adminUserService.createUser(adminCreateUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    /** PUT /api/v1/admin/users/{id} */
     @Override
     public ResponseEntity<UserAccountResponse> updateUser(
             String id,
@@ -54,6 +61,7 @@ public class AdminUserApiController implements AdminApi {
         return ResponseEntity.ok(adminUserService.updateUser(id, adminUpdateUserRequest));
     }
 
+    /** POST /api/v1/admin/users/{id}/subscription — Gán gói cho user. */
     @Override
     public ResponseEntity<SubscriptionSummary> assignUserSubscription(
             String id,
@@ -66,16 +74,19 @@ public class AdminUserApiController implements AdminApi {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    /** GET /api/v1/admin/packages */
     @Override
     public ResponseEntity<List<PackageCatalogItem>> listAdminPackages() {
         return ResponseEntity.ok(adminPackageAdminService.listPackages());
     }
 
+    /** GET /api/v1/admin/package-upgrade-requests */
     @Override
     public ResponseEntity<List<PackageUpgradeRequestAdminDto>> listPackageUpgradeRequests(String status) {
         return ResponseEntity.ok(adminPackageAdminService.listUpgradeRequests(status));
     }
 
+    /** PATCH /api/v1/admin/package-upgrade-requests/{id} — Duyệt / từ chối nâng gói. */
     @Override
     public ResponseEntity<PackageUpgradeRequestAdminDto> reviewPackageUpgradeRequest(
             UUID id,

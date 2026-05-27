@@ -8,11 +8,11 @@ import type { UserAccountResponse } from '../models/UserAccountResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
+/** Quản lý user — yêu cầu role ADMIN. */
 export class AdminService {
     /**
-     * List all users (admin only)
-     * @returns UserAccountResponse User list
-     * @throws ApiError
+     * GET /api/v1/admin/users — Danh sách toàn bộ user.
+     * @usedBy views/UsersAdminView.vue, views/SubscriptionsAdminView.vue
      */
     public static listUsers(): CancelablePromise<Array<UserAccountResponse>> {
         return __request(OpenAPI, {
@@ -25,10 +25,8 @@ export class AdminService {
         });
     }
     /**
-     * Create user (admin only)
-     * @param requestBody
-     * @returns UserAccountResponse Created
-     * @throws ApiError
+     * POST /api/v1/admin/users — Tạo user (userName, password, role, enabled).
+     * @usedBy views/UsersAdminView.vue
      */
     public static createUser(
         requestBody: AdminCreateUserRequest,
@@ -46,11 +44,8 @@ export class AdminService {
         });
     }
     /**
-     * Update user role/status (admin only)
-     * @param id
-     * @param requestBody
-     * @returns UserAccountResponse Updated
-     * @throws ApiError
+     * PUT /api/v1/admin/users/{id} — Sửa role, trạng thái ACTIVE/INACTIVE, đổi mật khẩu.
+     * @usedBy views/UsersAdminView.vue
      */
     public static updateUser(
         id: string,

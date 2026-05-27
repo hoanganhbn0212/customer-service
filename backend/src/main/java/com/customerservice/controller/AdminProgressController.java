@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Tiến độ triển khai gói — frontend: {@code adminApi.js} → ProgressAdminView.
+ */
 @RestController
 @RequestMapping("/api/v1/admin/subscription-progress")
 public class AdminProgressController {
@@ -24,6 +27,7 @@ public class AdminProgressController {
         this.adminProgressService = adminProgressService;
     }
 
+    /** GET /api/v1/admin/subscription-progress — Liệt kê tiến độ (lọc packageCode). */
     @GetMapping
     public ResponseEntity<List<AdminSubscriptionProgressDto>> listProgress(
             @RequestParam(value = "packageCode", required = false) String packageCode
@@ -31,6 +35,7 @@ public class AdminProgressController {
         return ResponseEntity.ok(adminProgressService.listProgress(packageCode));
     }
 
+    /** PATCH /api/v1/admin/subscription-progress/{id} — Cập nhật số liệu (đồng bộ mobile/home). */
     @PatchMapping("/{subscriptionId}")
     public ResponseEntity<AdminSubscriptionProgressDto> updateProgress(
             @PathVariable("subscriptionId") UUID subscriptionId,

@@ -1,3 +1,6 @@
+# Chay ca app bang Docker: Postgres + Backend + Web (Vue build + Caddy)
+# Lenh: docker compose up -d --build   hoac: .\scripts\docker-up.ps1
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -5,18 +8,53 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: customer_service
-      POSTGRES_USER: hydro_reader
-      POSTGRES_PASSWORD: hydro_reader
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${DB_USER:-hydro_reader}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-hydro_reader}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U hydro_reader -d customer_service"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-hydro_reader} -d customer_service"]
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 10s
+      start_period: 15s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: customer-service-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/customer_service
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-hydro_reader}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-hydro_reader}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me-use-openssl-rand-hex-32}
+      JWT_EXPIRATION_SECONDS: ${JWT_EXPIRATION_SECONDS:-86400}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8082"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8082/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web.http
+    container_name: customer-service-web
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres_data:

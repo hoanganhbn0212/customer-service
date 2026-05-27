@@ -7,6 +7,7 @@ import com.customerservice.service.LoginThemeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+/** Theme màn login — frontend: {@code ContentService} → LoginView, LoginThemeAdminView. */
 @RestController
 public class ContentApiController implements ContentApi {
 
@@ -16,11 +17,13 @@ public class ContentApiController implements ContentApi {
         this.loginThemeService = loginThemeService;
     }
 
+    /** GET /api/v1/content — Ảnh nền header/body login. */
     @Override
     public ResponseEntity<LoginThemeResponse> getLoginTheme() {
         return ResponseEntity.ok(loginThemeService.getLoginTheme());
     }
 
+    /** POST /api/v1/content — Lưu theme (admin). */
     @Override
     public ResponseEntity<LoginThemeResponse> saveLoginTheme(SaveLoginThemeRequest saveLoginThemeRequest) {
         return ResponseEntity.ok(loginThemeService.saveLoginTheme(saveLoginThemeRequest));

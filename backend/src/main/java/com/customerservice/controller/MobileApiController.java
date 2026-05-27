@@ -27,6 +27,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * API app khách Layla — frontend: {@code mobileApi.js}
+ * → HomeView, ServicesView, ServiceReviewView, NotificationsView, AccountView.
+ */
 @RestController
 public class MobileApiController implements MobileApi {
 
@@ -50,26 +54,31 @@ public class MobileApiController implements MobileApi {
         this.mobileAccountService = mobileAccountService;
     }
 
+    /** GET /api/v1/mobile/home — Tổng quan: gói, tiến độ, dịch vụ, lịch. */
     @Override
     public ResponseEntity<MobileHomeResponse> getMobileHome(LocalDate selectedDate) {
         return ResponseEntity.ok(mobileHomeService.getHome(selectedDate));
     }
 
+    /** GET /api/v1/mobile/services — Hạng mục triển khai theo category. */
     @Override
     public ResponseEntity<MobileServicesResponse> getMobileServices(String category) {
         return ResponseEntity.ok(mobileServicesService.getServices(category));
     }
 
+    /** GET /api/v1/mobile/deliverables/{id}/review — Load bài + đánh giá. */
     @Override
     public ResponseEntity<DeliverableReviewResponse> getDeliverableReview(UUID deliverableId) {
         return ResponseEntity.ok(mobileReviewService.getReview(deliverableId));
     }
 
+    /** PUT /api/v1/mobile/deliverables/{id}/reviews/draft — Lưu nháp đánh giá. */
     @Override
     public ResponseEntity<ContentReviewDto> saveReviewDraft(UUID deliverableId, SaveReviewDraftRequest request) {
         return ResponseEntity.ok(mobileReviewService.saveDraft(deliverableId, request));
     }
 
+    /** POST /api/v1/mobile/deliverables/{id}/reviews — Gửi đánh giá (chốt). */
     @Override
     public ResponseEntity<ContentReviewDto> submitReview(UUID deliverableId, SubmitReviewRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(mobileReviewService.submitReview(deliverableId, request));
@@ -84,11 +93,13 @@ public class MobileApiController implements MobileApi {
         return ResponseEntity.ok(mobileNotificationService.listNotifications(page, size, unreadOnly));
     }
 
+    /** GET /api/v1/mobile/notifications/unread-count — Badge chuông Home. */
     @Override
     public ResponseEntity<UnreadCountResponse> getUnreadNotificationCount() {
         return ResponseEntity.ok(mobileNotificationService.getUnreadCount());
     }
 
+    /** PATCH /api/v1/mobile/notifications/{id}/read */
     @Override
     public ResponseEntity<Void> markNotificationRead(UUID id) {
         mobileNotificationService.markRead(id);
@@ -100,22 +111,26 @@ public class MobileApiController implements MobileApi {
         return ResponseEntity.ok(mobileAccountService.getAccount());
     }
 
+    /** PATCH /api/v1/mobile/account — Cập nhật thông tin cá nhân. */
     @Override
     public ResponseEntity<MobileAccountResponse> updateMobileAccount(UpdateAccountRequest updateAccountRequest) {
         return ResponseEntity.ok(mobileAccountService.updateAccount(updateAccountRequest));
     }
 
+    /** GET /api/v1/mobile/packages — Danh mục gói (nâng cấp). */
     @Override
     public ResponseEntity<List<PackageCatalogItem>> listAvailablePackages() {
         return ResponseEntity.ok(mobileAccountService.listPackages());
     }
 
+    /** POST /api/v1/mobile/package-upgrade-requests — User yêu cầu nâng gói. */
     @Override
     public ResponseEntity<PackageUpgradeResponse> requestPackageUpgrade(PackageUpgradeRequest packageUpgradeRequest) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(mobileAccountService.requestUpgrade(packageUpgradeRequest));
     }
 
+    /** GET /api/v1/mobile/vouchers */
     @Override
     public ResponseEntity<List<UserVoucherDto>> listMyVouchers() {
         return ResponseEntity.ok(mobileAccountService.listVouchers());
