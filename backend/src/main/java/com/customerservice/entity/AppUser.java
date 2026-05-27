@@ -25,6 +25,9 @@ public class AppUser {
     @Column(nullable = false, length = 50)
     private String enabled;
 
+    @Column(nullable = true, length = 20)
+    private String role = "USER";
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -41,6 +44,9 @@ public class AppUser {
             createdAt = now;
         }
         updatedAt = now;
+        if (role == null || role.isBlank()) {
+            role = "USER";
+        }
     }
 
     public String getId() {
@@ -69,6 +75,14 @@ public class AppUser {
 
     public void setEnabled(String enabled) {
         this.enabled = enabled;
+    }
+
+    public String getRole() {
+        return role == null || role.isBlank() ? "USER" : role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public LocalDateTime getCreatedAt() {

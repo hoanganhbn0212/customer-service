@@ -11,6 +11,24 @@ public class GlobalExceptionHandler {
 
     public static final String INVALID_CREDENTIALS = "INVALID_CREDENTIALS";
     public static final String USERNAME_ALREADY_EXISTS = "USERNAME_ALREADY_EXISTS";
+    public static final String FORBIDDEN = "FORBIDDEN";
+    public static final String UNAUTHORIZED = "UNAUTHORIZED";
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ignored) {
+        ErrorResponse body = new ErrorResponse();
+        body.setCode(UNAUTHORIZED);
+        body.setMessage("Bạn cần đăng nhập để thực hiện thao tác này.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException ignored) {
+        ErrorResponse body = new ErrorResponse();
+        body.setCode(FORBIDDEN);
+        body.setMessage("Bạn không có quyền thực hiện thao tác này.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
 
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUsernameAlreadyExists(UsernameAlreadyExistsException ex) {

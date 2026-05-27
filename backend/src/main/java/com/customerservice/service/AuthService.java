@@ -4,6 +4,7 @@ import com.customerservice.entity.AppUser;
 import com.customerservice.exception.InvalidCredentialsException;
 import com.customerservice.exception.UsernameAlreadyExistsException;
 import com.customerservice.repository.AppUserRepository;
+import com.customerservice.service.mobile.SubscriptionProvisioningService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,13 +13,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private static final String STATUS_ACTIVE = "ACTIVE";
+    private static final String ROLE_USER = "USER";
 
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SubscriptionProvisioningService subscriptionProvisioningService;
 
-    public AuthService(AppUserRepository appUserRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(
+            AppUserRepository appUserRepository,
+            PasswordEncoder passwordEncoder,
+            SubscriptionProvisioningService subscriptionProvisioningService
+    ) {
         this.appUserRepository = appUserRepository;
         this.passwordEncoder = passwordEncoder;
+        this.subscriptionProvisioningService = subscriptionProvisioningService;
     }
 
     @Transactional
@@ -36,7 +44,10 @@ public class AuthService {
         user.setUsername(key);
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
         user.setEnabled(STATUS_ACTIVE);
-        return appUserRepository.save(user);
+        user.setRole(ROLE_USER);
+        AppUser saved = appUserRepository.save(user);
+        subscriptionProvisioningService.assignDefaultForNewUser(saved.getId());
+        return saved;
     }
 
     @Transactional(readOnly = true)

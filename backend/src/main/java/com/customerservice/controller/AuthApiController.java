@@ -7,6 +7,8 @@ import com.customerservice.model.LoginResponse;
 import com.customerservice.model.RegisterRequest;
 import com.customerservice.model.RegisterResponse;
 import com.customerservice.model.UserProfile;
+import com.customerservice.repository.AppUserRepository;
+import com.customerservice.security.AuthContext;
 import com.customerservice.service.AuthService;
 import com.customerservice.service.JwtTokenService;
 import java.util.UUID;
@@ -19,10 +21,16 @@ public class AuthApiController implements AuthApi {
 
     private final AuthService authService;
     private final JwtTokenService jwtTokenService;
+    private final AppUserRepository appUserRepository;
 
-    public AuthApiController(AuthService authService, JwtTokenService jwtTokenService) {
+    public AuthApiController(
+            AuthService authService,
+            JwtTokenService jwtTokenService,
+            AppUserRepository appUserRepository
+    ) {
         this.authService = authService;
         this.jwtTokenService = jwtTokenService;
+        this.appUserRepository = appUserRepository;
     }
 
     @Override
@@ -39,17 +47,24 @@ public class AuthApiController implements AuthApi {
     public ResponseEntity<LoginResponse> login(LoginRequest loginRequest) {
         AppUser user = authService.authenticate(loginRequest.getUserName(), loginRequest.getPassword());
         LoginResponse body = new LoginResponse();
-        body.setAccessToken(jwtTokenService.createAccessToken(user.getUsername()));
+        body.setAccessToken(jwtTokenService.createAccessToken(user));
         body.setTokenType("Bearer");
         body.setExpiresIn(jwtTokenService.getExpirationSeconds());
+        body.setUserName(user.getUsername());
+        body.setRole(LoginResponse.RoleEnum.fromValue(user.getRole()));
         return ResponseEntity.ok(body);
     }
 
     @Override
     public ResponseEntity<UserProfile> getCurrentUser() {
+        var authUser = AuthContext.requireAuthenticated();
+        AppUser user = appUserRepository.findById(authUser.id())
+                .orElseThrow(() -> new IllegalStateException("User not found"));
         UserProfile profile = new UserProfile();
-        profile.setId("demo-user");
-        profile.setEmail("demo@example.com");
+        profile.setId(user.getId());
+        profile.setUserName(user.getUsername());
+        profile.setRole(UserProfile.RoleEnum.fromValue(user.getRole()));
+        profile.setEnabled(UserProfile.EnabledEnum.fromValue(user.getEnabled()));
         return ResponseEntity.ok(profile);
     }
 }

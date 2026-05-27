@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "gen:api": "openapi --input ../backend/src/main/resources/openapi/customer-service.yaml --output src/api --client fetch",
+    "gen:api": "openapi --input ../backend/src/main/resources/openapi/customer-service.yaml --output src/api --client fetch && node scripts/patch-openapi-base.js",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"

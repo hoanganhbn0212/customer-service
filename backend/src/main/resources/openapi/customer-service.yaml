@@ -73,6 +73,154 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/content:
+    get:
+      tags:
+        - Content
+      operationId: getLoginTheme
+      summary: Get login theme backgrounds (header and body)
+      responses:
+        "200":
+          description: Theme backgrounds
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginThemeResponse"
+    post:
+      tags:
+        - Content
+      operationId: saveLoginTheme
+      summary: Save login theme backgrounds (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveLoginThemeRequest"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginThemeResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/admin/users:
+    get:
+      tags:
+        - Admin
+      operationId: listUsers
+      summary: List all users (admin only)
+      responses:
+        "200":
+          description: User list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserAccountResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      tags:
+        - Admin
+      operationId: createUser
+      summary: Create user (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminCreateUserRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserAccountResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Username exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/admin/users/{id}:
+    put:
+      tags:
+        - Admin
+      operationId: updateUser
+      summary: Update user role/status (admin only)
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUpdateUserRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserAccountResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/health:
     get:
@@ -174,6 +322,461 @@ paths:
         "404":
           description: Not found
 
+  /api/v1/mobile/home:
+    get:
+      tags: [Mobile]
+      operationId: getMobileHome
+      summary: Mobile home overview
+      parameters:
+        - name: selectedDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileHomeResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/mobile/services:
+    get:
+      tags: [Mobile]
+      operationId: getMobileServices
+      summary: Mobile services screen
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [all, content, ads, report]
+            default: all
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileServicesResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/mobile/deliverables/{deliverableId}/review:
+    get:
+      tags: [Mobile]
+      operationId: getDeliverableReview
+      parameters:
+        - name: deliverableId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeliverableReviewResponse"
+        "404":
+          description: Not found
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/mobile/deliverables/{deliverableId}/reviews/draft:
+    put:
+      tags: [Mobile]
+      operationId: saveReviewDraft
+      parameters:
+        - name: deliverableId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveReviewDraftRequest"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentReviewDto"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/mobile/deliverables/{deliverableId}/reviews:
+    post:
+      tags: [Mobile]
+      operationId: submitReview
+      parameters:
+        - name: deliverableId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitReviewRequest"
+      responses:
+        "201":
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentReviewDto"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/mobile/notifications:
+    get:
+      tags: [Mobile]
+      operationId: listNotifications
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: unreadOnly
+          in: query
+          schema: { type: boolean, default: false }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationListResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/mobile/notifications/unread-count:
+    get:
+      tags: [Mobile]
+      operationId: getUnreadNotificationCount
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnreadCountResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/mobile/notifications/{id}/read:
+    patch:
+      tags: [Mobile]
+      operationId: markNotificationRead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Marked read
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/mobile/account:
+    get:
+      tags: [Mobile]
+      operationId: getMobileAccount
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileAccountResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      tags: [Mobile]
+      operationId: updateMobileAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAccountRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileAccountResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/mobile/packages:
+    get:
+      tags: [Mobile]
+      operationId: listAvailablePackages
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PackageCatalogItem"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/mobile/package-upgrade-requests:
+    post:
+      tags: [Mobile]
+      operationId: requestPackageUpgrade
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PackageUpgradeRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackageUpgradeResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/mobile/vouchers:
+    get:
+      tags: [Mobile]
+      operationId: listMyVouchers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserVoucherDto"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/admin/users/{id}/subscription:
+    post:
+      tags: [Admin]
+      operationId: assignUserSubscription
+      summary: Assign active package to user (admin)
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminAssignSubscriptionRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionSummary"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/admin/packages:
+    get:
+      tags: [Admin]
+      operationId: listAdminPackages
+      summary: List service packages (admin)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PackageCatalogItem"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/admin/package-upgrade-requests:
+    get:
+      tags: [Admin]
+      operationId: listPackageUpgradeRequests
+      summary: List package upgrade requests (admin)
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [PENDING, APPROVED, REJECTED]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PackageUpgradeRequestAdminDto"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/admin/package-upgrade-requests/{id}:
+    patch:
+      tags: [Admin]
+      operationId: reviewPackageUpgradeRequest
+      summary: Approve or reject upgrade request (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewPackageUpgradeRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackageUpgradeRequestAdminDto"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   parameters:
     CustomerId:
@@ -183,6 +786,13 @@ components:
       schema:
         type: integer
         format: int64
+
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
 
   schemas:
     ErrorResponse:
@@ -246,6 +856,8 @@ components:
         - accessToken
         - tokenType
         - expiresIn
+        - userName
+        - role
       properties:
         accessToken:
           type: string
@@ -255,18 +867,84 @@ components:
         expiresIn:
           type: integer
           format: int64
+        userName:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, DEVELOP, USER]
 
     UserProfile:
       type: object
       required:
         - id
-        - email
+        - userName
+        - role
+        - enabled
       properties:
         id:
           type: string
-        email:
+        userName:
           type: string
-          format: email
+        role:
+          type: string
+          enum: [ADMIN, DEVELOP, USER]
+        enabled:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+
+    UserAccountResponse:
+      type: object
+      required:
+        - id
+        - userName
+        - role
+        - enabled
+      properties:
+        id:
+          type: string
+        userName:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, DEVELOP, USER]
+        enabled:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+
+    AdminCreateUserRequest:
+      type: object
+      required:
+        - userName
+        - password
+        - role
+        - enabled
+      properties:
+        userName:
+          type: string
+        password:
+          type: string
+          format: password
+          minLength: 6
+        role:
+          type: string
+          enum: [ADMIN, DEVELOP, USER]
+        enabled:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+
+    AdminUpdateUserRequest:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [ADMIN, DEVELOP, USER]
+        enabled:
+          type: string
+          enum: [ACTIVE, INACTIVE]
+        password:
+          type: string
+          format: password
+          minLength: 6
 
     HealthResponse:
       type: object
@@ -320,3 +998,451 @@ components:
         email:
           type: string
           format: email
+
+    LoginThemeResponse:
+      type: object
+      properties:
+        headerBackgroundUrl:
+          type: string
+          description: Background image URL for login header
+        bodyBackgroundUrl:
+          type: string
+          description: Background image URL for login body (below form)
+
+    SaveLoginThemeRequest:
+      type: object
+      properties:
+        headerBackgroundUrl:
+          type: string
+        bodyBackgroundUrl:
+          type: string
+
+    SubscriptionSummary:
+      type: object
+      required: [id, packageCode, tier, displayTitle, startDate, endDate, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        packageCode:
+          type: string
+        tier:
+          type: string
+          enum: [BASIC, PRO]
+        displayTitle:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [ACTIVE, EXPIRED, CANCELLED]
+
+    ProgressSummary:
+      type: object
+      required: [overallPercent, completedPosts, completedImages, completedVideos, quotaPosts, quotaImages, quotaVideos, status]
+      properties:
+        overallPercent:
+          type: integer
+        completedPosts:
+          type: integer
+        completedImages:
+          type: integer
+        completedVideos:
+          type: integer
+        quotaPosts:
+          type: integer
+        quotaImages:
+          type: integer
+        quotaVideos:
+          type: integer
+        status:
+          type: string
+          enum: [pending, progress, done]
+
+    ServiceProgressItem:
+      type: object
+      required: [id, name, percent, status]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+        percent:
+          type: integer
+        status:
+          type: string
+          enum: [pending, progress, done]
+
+    ScheduleDay:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        dayOfMonth:
+          type: integer
+        dowIndex:
+          type: integer
+          description: 0=Mon .. 6=Sun
+        selected:
+          type: boolean
+
+    ScheduleTask:
+      type: object
+      required: [id, title]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        scheduledTime:
+          type: string
+
+    MobileHomeSchedule:
+      type: object
+      properties:
+        month:
+          type: integer
+        year:
+          type: integer
+        weekDays:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScheduleDay"
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScheduleTask"
+
+    MobileHomeResponse:
+      type: object
+      required: [subscription, progress, services, schedule]
+      properties:
+        subscription:
+          $ref: "#/components/schemas/SubscriptionSummary"
+        progress:
+          $ref: "#/components/schemas/ProgressSummary"
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceProgressItem"
+        schedule:
+          $ref: "#/components/schemas/MobileHomeSchedule"
+
+    ImplementationItem:
+      type: object
+      required: [id, code, title, category, currentCount, targetCount, status, updatedOn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        title:
+          type: string
+        category:
+          type: string
+          enum: [content, ads, report]
+        currentCount:
+          type: integer
+        targetCount:
+          type: integer
+        status:
+          type: string
+          enum: [approved, in_progress, waiting_feedback]
+        updatedOn:
+          type: string
+          format: date
+        deliverableId:
+          type: string
+          format: uuid
+        reviewable:
+          type: boolean
+
+    PackageServiceInfo:
+      type: object
+      required: [id, name, description]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+
+    MobileServicesResponse:
+      type: object
+      required: [activeSubscription, implementationItems, packageServices]
+      properties:
+        activeSubscription:
+          $ref: "#/components/schemas/SubscriptionSummary"
+        implementationItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImplementationItem"
+        packageServices:
+          type: array
+          items:
+            $ref: "#/components/schemas/PackageServiceInfo"
+
+    DeliverableDto:
+      type: object
+      required: [id, postNumber, companyResponseStatus]
+      properties:
+        id:
+          type: string
+          format: uuid
+        postNumber:
+          type: string
+        thumbnailUrl:
+          type: string
+        taskTitle:
+          type: string
+        companyResponseStatus:
+          type: string
+          enum: [responded, pending]
+        teamContentScore:
+          type: number
+          format: double
+        teamDesignScore:
+          type: number
+          format: double
+
+    ContentReviewDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        qualityScore:
+          type: integer
+        comments:
+          type: string
+        suggestions:
+          type: string
+        status:
+          type: string
+          enum: [DRAFT, SUBMITTED]
+        submittedAt:
+          type: string
+          format: date-time
+
+    DeliverableReviewResponse:
+      type: object
+      required: [deliverable]
+      properties:
+        deliverable:
+          $ref: "#/components/schemas/DeliverableDto"
+        review:
+          $ref: "#/components/schemas/ContentReviewDto"
+
+    SaveReviewDraftRequest:
+      type: object
+      required: [qualityScore]
+      properties:
+        qualityScore:
+          type: integer
+        comments:
+          type: string
+        suggestions:
+          type: string
+
+    SubmitReviewRequest:
+      type: object
+      required: [qualityScore]
+      properties:
+        qualityScore:
+          type: integer
+        comments:
+          type: string
+        suggestions:
+          type: string
+
+    NotificationDto:
+      type: object
+      required: [id, type, title, createdAt, read]
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [FEEDBACK_REPLY, PROMOTION, SCHEDULE]
+        title:
+          type: string
+        body:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        referenceType:
+          type: string
+        referenceId:
+          type: string
+
+    NotificationListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NotificationDto"
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+
+    UnreadCountResponse:
+      type: object
+      required: [count]
+      properties:
+        count:
+          type: integer
+
+    MobileAccountResponse:
+      type: object
+      properties:
+        userName:
+          type: string
+        fullName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        avatarUrl:
+          type: string
+        subscription:
+          $ref: "#/components/schemas/SubscriptionSummary"
+
+    UpdateAccountRequest:
+      type: object
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        avatarUrl:
+          type: string
+
+    PackageCatalogItem:
+      type: object
+      required: [code, tier, label, quotaPosts, quotaImages, quotaVideos]
+      properties:
+        code:
+          type: string
+        tier:
+          type: string
+          enum: [BASIC, PRO]
+        label:
+          type: string
+        quotaPosts:
+          type: integer
+        quotaImages:
+          type: integer
+        quotaVideos:
+          type: integer
+
+    PackageUpgradeRequest:
+      type: object
+      required: [toPackageCode]
+      properties:
+        toPackageCode:
+          type: string
+        note:
+          type: string
+
+    PackageUpgradeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED]
+
+    UserVoucherDto:
+      type: object
+      required: [id, code, title, expiresAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+        usedAt:
+          type: string
+          format: date-time
+
+    AdminAssignSubscriptionRequest:
+      type: object
+      required: [packageCode]
+      properties:
+        packageCode:
+          type: string
+        displayTitle:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    PackageUpgradeRequestAdminDto:
+      type: object
+      required: [id, userId, userName, fromPackageCode, toPackageCode, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+        userName:
+          type: string
+        fromPackageCode:
+          type: string
+        toPackageCode:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, APPROVED, REJECTED]
+        note:
+          type: string
+        adminNote:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        reviewedAt:
+          type: string
+          format: date-time
+
+    ReviewPackageUpgradeRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [APPROVED, REJECTED]
+        adminNote:
+          type: string

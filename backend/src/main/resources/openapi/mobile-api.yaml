@@ -1,0 +1,531 @@
+# Layla Mobile API (bổ sung customer-service.yaml)
+# Spec đầy đủ: docs/MOBILE_API_AND_DATABASE.md
+openapi: 3.0.3
+info:
+  title: Layla Mobile API
+  version: 1.0.0
+  description: API cho app mobile khách hàng — map theo từng màn hình
+
+servers:
+  - url: http://localhost:8082
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/v1/mobile/home:
+    get:
+      tags: [MobileHome]
+      operationId: getMobileHome
+      summary: Màn Tổng quan — gói, tiến độ, dịch vụ, lịch tuần
+      parameters:
+        - name: weekStart
+          in: query
+          schema: { type: string, format: date }
+          description: Thứ Hai của tuần hiển thị (ISO date)
+        - name: selectedDate
+          in: query
+          schema: { type: string, format: date }
+          description: Ngày đang chọn trên lịch
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileHomeResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/mobile/services:
+    get:
+      tags: [MobileServices]
+      operationId: getMobileServices
+      summary: Màn Dịch vụ — gói active, danh sách triển khai, thông tin gói
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [all, content, ads, report]
+            default: all
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileServicesResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/mobile/deliverables/{deliverableId}/review:
+    get:
+      tags: [MobileReview]
+      operationId: getDeliverableReview
+      summary: Màn Đánh giá — load bài + draft/review đã gửi
+      parameters:
+        - $ref: "#/components/parameters/DeliverableId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeliverableReviewResponse"
+        "404":
+          description: Not found
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/mobile/deliverables/{deliverableId}/reviews/draft:
+    put:
+      tags: [MobileReview]
+      operationId: saveReviewDraft
+      summary: Lưu nháp đánh giá
+      parameters:
+        - $ref: "#/components/parameters/DeliverableId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveReviewDraftRequest"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentReviewDto"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/mobile/deliverables/{deliverableId}/reviews:
+    post:
+      tags: [MobileReview]
+      operationId: submitReview
+      summary: Gửi đánh giá (chốt)
+      parameters:
+        - $ref: "#/components/parameters/DeliverableId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitReviewRequest"
+      responses:
+        "201":
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContentReviewDto"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/mobile/notifications:
+    get:
+      tags: [MobileNotifications]
+      operationId: listNotifications
+      summary: Màn Thông báo
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 0 }
+        - name: size
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: unreadOnly
+          in: query
+          schema: { type: boolean, default: false }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/mobile/notifications/unread-count:
+    get:
+      tags: [MobileNotifications]
+      operationId: getUnreadNotificationCount
+      summary: Số thông báo chưa đọc (badge chuông)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [count]
+                properties:
+                  count: { type: integer }
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/mobile/notifications/{id}/read:
+    patch:
+      tags: [MobileNotifications]
+      operationId: markNotificationRead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: Marked read
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/mobile/account:
+    get:
+      tags: [MobileAccount]
+      operationId: getMobileAccount
+      summary: Màn Tài khoản — profile + gói hiện tại
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileAccountResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    patch:
+      tags: [MobileAccount]
+      operationId: updateMobileAccount
+      summary: Cập nhật thông tin cá nhân
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAccountRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MobileAccountResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/mobile/packages:
+    get:
+      tags: [MobileAccount]
+      operationId: listAvailablePackages
+      summary: Danh mục gói (nâng cấp)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PackageCatalogItem"
+
+  /api/v1/mobile/package-upgrade-requests:
+    post:
+      tags: [MobileAccount]
+      operationId: requestPackageUpgrade
+      summary: Yêu cầu nâng cấp gói
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PackageUpgradeRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackageUpgradeResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/mobile/vouchers:
+    get:
+      tags: [MobileAccount]
+      operationId: listMyVouchers
+      summary: Voucher của tôi
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserVoucherDto"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    DeliverableId:
+      name: deliverableId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code: { type: string }
+        message: { type: string }
+
+    SubscriptionSummary:
+      type: object
+      required: [id, packageCode, tier, displayTitle, startDate, endDate, status]
+      properties:
+        id: { type: string, format: uuid }
+        packageCode: { type: string, example: PRO_15 }
+        tier: { type: string, enum: [BASIC, PRO] }
+        displayTitle: { type: string, example: "Chăm sóc Fanpage Pro" }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        status: { type: string, enum: [ACTIVE, EXPIRED, CANCELLED] }
+
+    ProgressSummary:
+      type: object
+      required: [overallPercent, completedPosts, completedImages, completedVideos, quotaPosts, quotaImages, quotaVideos]
+      properties:
+        overallPercent: { type: integer, minimum: 0, maximum: 100 }
+        completedPosts: { type: integer }
+        completedImages: { type: integer }
+        completedVideos: { type: integer }
+        quotaPosts: { type: integer }
+        quotaImages: { type: integer }
+        quotaVideos: { type: integer }
+        status: { type: string, enum: [pending, progress, done] }
+
+    ServiceProgressItem:
+      type: object
+      required: [id, name, percent, status]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        icon: { type: string }
+        percent: { type: integer }
+        status: { type: string, enum: [pending, progress, done] }
+
+    ScheduleDay:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        dayOfMonth: { type: integer }
+        label: { type: string }
+        selected: { type: boolean }
+
+    ScheduleTask:
+      type: object
+      required: [id, title]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        scheduledTime: { type: string, example: "09:00" }
+
+    MobileHomeResponse:
+      type: object
+      required: [subscription, progress, services, schedule]
+      properties:
+        subscription:
+          $ref: "#/components/schemas/SubscriptionSummary"
+        progress:
+          $ref: "#/components/schemas/ProgressSummary"
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceProgressItem"
+        schedule:
+          type: object
+          properties:
+            month: { type: integer }
+            year: { type: integer }
+            weekDays:
+              type: array
+              items:
+                $ref: "#/components/schemas/ScheduleDay"
+            tasks:
+              type: array
+              items:
+                $ref: "#/components/schemas/ScheduleTask"
+
+    ImplementationItem:
+      type: object
+      required: [id, code, title, category, currentCount, targetCount, status, updatedOn]
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string, example: design_post }
+        title: { type: string }
+        category: { type: string, enum: [content, ads, report] }
+        currentCount: { type: integer }
+        targetCount: { type: integer }
+        status: { type: string, enum: [approved, in_progress, waiting_feedback] }
+        updatedOn: { type: string, format: date }
+        deliverableId: { type: string, format: uuid, description: Có khi mở màn đánh giá }
+        reviewable: { type: boolean }
+
+    PackageServiceInfo:
+      type: object
+      required: [id, name, description]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+
+    MobileServicesResponse:
+      type: object
+      required: [activeSubscription, implementationItems, packageServices]
+      properties:
+        activeSubscription:
+          $ref: "#/components/schemas/SubscriptionSummary"
+        implementationItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/ImplementationItem"
+        packageServices:
+          type: array
+          items:
+            $ref: "#/components/schemas/PackageServiceInfo"
+
+    DeliverableReviewResponse:
+      type: object
+      required: [deliverable]
+      properties:
+        deliverable:
+          type: object
+          required: [id, postNumber, thumbnailUrl, companyResponseStatus, teamContentScore, teamDesignScore]
+          properties:
+            id: { type: string, format: uuid }
+            postNumber: { type: string }
+            thumbnailUrl: { type: string }
+            taskTitle: { type: string }
+            companyResponseStatus: { type: string, enum: [responded, pending] }
+            teamContentScore: { type: number, format: float }
+            teamDesignScore: { type: number, format: float }
+        review:
+          $ref: "#/components/schemas/ContentReviewDto"
+
+    ContentReviewDto:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        qualityScore: { type: integer, minimum: 1, maximum: 10 }
+        comments: { type: string }
+        suggestions: { type: string }
+        status: { type: string, enum: [DRAFT, SUBMITTED] }
+        submittedAt: { type: string, format: date-time }
+
+    SaveReviewDraftRequest:
+      type: object
+      required: [qualityScore]
+      properties:
+        qualityScore: { type: integer, minimum: 1, maximum: 10 }
+        comments: { type: string }
+        suggestions: { type: string }
+
+    SubmitReviewRequest:
+      allOf:
+        - $ref: "#/components/schemas/SaveReviewDraftRequest"
+
+    NotificationDto:
+      type: object
+      required: [id, type, title, createdAt, read]
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, enum: [FEEDBACK_REPLY, PROMOTION, SCHEDULE] }
+        title: { type: string }
+        body: { type: string }
+        read: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        referenceType: { type: string }
+        referenceId: { type: string }
+
+    NotificationListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NotificationDto"
+        totalElements: { type: integer }
+        totalPages: { type: integer }
+
+    MobileAccountResponse:
+      type: object
+      properties:
+        userName: { type: string }
+        fullName: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        avatarUrl: { type: string }
+        subscription:
+          $ref: "#/components/schemas/SubscriptionSummary"
+
+    UpdateAccountRequest:
+      type: object
+      properties:
+        fullName: { type: string }
+        phone: { type: string }
+        email: { type: string }
+        avatarUrl: { type: string }
+
+    PackageCatalogItem:
+      type: object
+      required: [code, tier, label, quotaPosts, quotaImages, quotaVideos]
+      properties:
+        code: { type: string }
+        tier: { type: string, enum: [BASIC, PRO] }
+        label: { type: string }
+        quotaPosts: { type: integer }
+        quotaImages: { type: integer }
+        quotaVideos: { type: integer }
+
+    PackageUpgradeRequest:
+      type: object
+      required: [toPackageCode]
+      properties:
+        toPackageCode: { type: string }
+        note: { type: string }
+
+    PackageUpgradeResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        status: { type: string, enum: [PENDING, APPROVED, REJECTED] }
+
+    UserVoucherDto:
+      type: object
+      required: [id, code, title, expiresAt]
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string }
+        title: { type: string }
+        description: { type: string }
+        expiresAt: { type: string, format: date-time }
+        usedAt: { type: string, format: date-time }
