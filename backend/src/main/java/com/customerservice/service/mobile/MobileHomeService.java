@@ -64,7 +64,12 @@ public class MobileHomeService {
 
         List<ServiceProgressItem> services = packageServiceItemRepository.findByPackageCode(pkg.getCode()).stream()
                 .map(item -> serviceDefinitionRepository.findById(item.getId().getServiceId()).orElseThrow())
-                .map(def -> MobileDtoMapper.toServiceProgressItem(def, percentByService.getOrDefault(def.getId(), 0)))
+                .map(def -> MobileProgressCalculator.computeServiceItem(
+                        def,
+                        pkg,
+                        progress,
+                        percentByService.getOrDefault(def.getId(), 0)
+                ))
                 .toList();
 
         LocalDate day = selectedDate != null ? selectedDate : LocalDate.now();
@@ -81,7 +86,7 @@ public class MobileHomeService {
 
         MobileHomeResponse response = new MobileHomeResponse();
         response.setSubscription(MobileDtoMapper.toSubscriptionSummary(sub));
-        response.setProgress(MobileDtoMapper.toProgressSummary(pkg, progress));
+        response.setProgress(MobileProgressCalculator.computeOverall(pkg, progress));
         response.setServices(services);
         response.setSchedule(schedule);
         return response;

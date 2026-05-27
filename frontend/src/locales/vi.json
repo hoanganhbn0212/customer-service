@@ -63,9 +63,14 @@
     "tierBasic": "Gói Basic",
     "overallProgress": "Tiến độ tổng thể",
     "completionLabel": "Tiến độ hoàn thành",
+    "progressFormula": "{completed}/{total} hạng mục đã hoàn thành",
     "statusDone": "Hoàn thành",
     "statusProgress": "Đang thực hiện",
     "statusPending": "Chưa bắt đầu",
+    "statusOnlyHint": "Theo trạng thái",
+    "pkgActive": "Đang hiệu lực",
+    "pkgExpired": "Hết hạn",
+    "pkgCancelled": "Đã huỷ",
     "serviceList": "Danh sách dịch vụ",
     "service": {
       "fanpage": "Quản trị Fanpage",
@@ -73,7 +78,8 @@
       "ads": "Quảng cáo Facebook",
       "report": "Báo cáo & Phân tích",
       "posts": "Viết bài",
-      "design": "Thiết kế hình ảnh"
+      "design": "Thiết kế hình ảnh",
+      "video": "Edit video"
     },
     "schedule": "Lịch trình",
     "monthYear": "Tháng {month}, {year}",
@@ -256,6 +262,18 @@
     "statusApproved": "Đã duyệt",
     "statusRejected": "Đã từ chối",
     "statusAll": "Tất cả"
+  },
+  "adminProgress": {
+    "nav": "Tiến độ gói",
+    "title": "Quản lý tiến độ theo gói",
+    "subtitle": "ADMIN và DEVELOP có thể cập nhật tiến độ hoàn thành cho từng subscription.",
+    "filterAll": "Tất cả gói",
+    "empty": "Không có subscription đang hoạt động.",
+    "posts": "Bài viết hoàn thành",
+    "images": "Hình ảnh hoàn thành",
+    "videos": "Video hoàn thành",
+    "save": "Lưu tiến độ",
+    "saveSuccess": "Đã cập nhật tiến độ cho {user}."
   },
   "dashboard": {
     "title": "Dịch vụ khách hàng",

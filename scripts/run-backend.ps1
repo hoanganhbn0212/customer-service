@@ -1,3 +1,6 @@
+& (Join-Path $PSScriptRoot "ensure-postgres.ps1")
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
 $backend = Join-Path $PSScriptRoot "..\backend"
 Set-Location $backend
 

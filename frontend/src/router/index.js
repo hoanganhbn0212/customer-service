@@ -6,6 +6,7 @@ import DashboardView from "../views/DashboardView.vue";
 import UsersAdminView from "../views/UsersAdminView.vue";
 import LoginThemeAdminView from "../views/LoginThemeAdminView.vue";
 import SubscriptionsAdminView from "../views/SubscriptionsAdminView.vue";
+import ProgressAdminView from "../views/ProgressAdminView.vue";
 import ServicesView from "../views/ServicesView.vue";
 import ServiceReviewView from "../views/ServiceReviewView.vue";
 import NotificationsView from "../views/NotificationsView.vue";
@@ -72,6 +73,12 @@ const router = createRouter({
       name: "admin-subscriptions",
       component: SubscriptionsAdminView,
       meta: { requiresAuth: true, requiresManageUsers: true }
+    },
+    {
+      path: "/admin/progress",
+      name: "admin-progress",
+      component: ProgressAdminView,
+      meta: { requiresAuth: true, requiresPageEditor: true }
     },
     { path: "/dashboard", redirect: "/home" }
   ]

@@ -62,10 +62,10 @@ public class SubscriptionProvisioningService {
         return assignPackage(
                 userId,
                 "BASIC_15",
-                "Gói nội dung cơ bản",
+                "Gói 15 cơ bản",
                 start,
                 end,
-                false
+                true
         );
     }
 
@@ -161,9 +161,6 @@ public class SubscriptionProvisioningService {
             saveServiceProgress(subId, "report", fullDemo ? 100 : 0);
             saveServiceProgress(subId, "cover", fullDemo ? 50 : 0);
             saveServiceProgress(subId, "like", fullDemo ? 40 : 0);
-        } else {
-            saveServiceProgress(subId, "posts", fullDemo ? 80 : 0);
-            saveServiceProgress(subId, "design", fullDemo ? 65 : 0);
         }
     }
 

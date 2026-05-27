@@ -24,6 +24,7 @@ const navItems = computed(() => {
     items.push({ id: "subscriptions", icon: "package", route: "/admin/subscriptions" });
   }
   if (canEditPages()) {
+    items.push({ id: "progress", icon: "chart", route: "/admin/progress" });
     items.push({ id: "theme", icon: "theme", route: "/admin/theme" });
   }
   return items;
@@ -53,6 +54,8 @@ const logout = () => {
             ? t('admin.nav')
             : item.id === 'subscriptions'
               ? t('adminSubs.nav')
+              : item.id === 'progress'
+                ? t('adminProgress.nav')
               : item.id === 'theme'
                 ? t('theme.nav')
                 : item.id
@@ -164,6 +167,10 @@ const logout = () => {
 
 .nav-icon[data-icon="package"] {
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z'/%3E%3C/svg%3E");
+}
+
+.nav-icon[data-icon="chart"] {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M4 19h16v2H2V3h2v16zm3-3h3V9H7v7zm5 0h3V5h-3v11zm5 0h3v-8h-3v8z'/%3E%3C/svg%3E");
 }
 
 .main-wrap {

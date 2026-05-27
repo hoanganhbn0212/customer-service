@@ -168,7 +168,7 @@ const goNotifications = () => router.push("/notifications");
           @keydown.enter="onTaskClick(task)"
         >
           <div class="impl-head">
-            <strong>{{ t(task.titleKey) }}</strong>
+            <strong>{{ taskTitle(task) }}</strong>
             <span class="status-pill" :class="task.status">{{ statusLabel(task.status) }}</span>
           </div>
           <div class="impl-progress-row">

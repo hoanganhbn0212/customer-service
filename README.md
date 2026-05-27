@@ -20,8 +20,23 @@ Spec OpenAPI dat tai:
 Chay database bang Docker:
 
 ```bash
-docker compose up -d
+docker compose up -d postgres
 ```
+
+Hoac dung script (tu dong cho DB san sang):
+
+```powershell
+.\scripts\ensure-postgres.ps1
+```
+
+**Loi `HHH000342: Could not obtain connection` / `Unable to determine Dialect`:** PostgreSQL chua chay. Kiem tra:
+
+```powershell
+docker ps --filter name=customer-service-postgres
+docker compose up -d postgres
+```
+
+Neu container `Exited`, chay lai lenh tren. Khi chay backend tu IntelliJ/IDE, chay `.\scripts\ensure-postgres.ps1` truoc hoac dung `.\scripts\run-backend.ps1`.
 
 Thong tin ket noi mac dinh:
 
@@ -71,6 +86,24 @@ npm run dev
 Frontend chay tai: `http://localhost:5173`  
 Frontend da cau hinh proxy `/api` sang backend `http://localhost:8082`.
 
+## Deploy miễn phí (Vercel + Render)
+
+Frontend **Vercel**, API **Render** (free): [deploy/VERCEL.md](deploy/VERCEL.md)
+
+## Deploy production (domain + HTTPS)
+
+Xem huong dan day du: [deploy/README.md](deploy/README.md)
+
+Tom tat tren VPS Linux:
+
+```bash
+cd deploy
+cp .env.example .env   # chinh DOMAIN, ACME_EMAIL, DB_PASSWORD, JWT_SECRET
+chmod +x deploy.sh && ./deploy.sh
+```
+
+Ung dung chay tai `https://<DOMAIN>` (Caddy tu cap chung chi Let's Encrypt).
+
 ## Script nhanh (Windows)
 
 ```powershell
@@ -87,7 +120,13 @@ Frontend da cau hinh proxy `/api` sang backend `http://localhost:8082`.
 - `POST /api/v1/auth/register`
 - `GET /api/v1/me`
 
-User mac dinh (seed DB): **admin** / **password**
+Tai khoan mac dinh (seed DB, mat khau **password**):
+
+| User | Role | Quyen |
+|------|------|--------|
+| **admin** | ADMIN | Quan ly user, goi dich vu, giao dien dang nhap |
+| **develop** | DEVELOP | Sua giao dien / nen trang dang nhap |
+| (user dang ky) | USER | Chi dung app (xem, khong trang admin) |
 
 ## API trong spec
 

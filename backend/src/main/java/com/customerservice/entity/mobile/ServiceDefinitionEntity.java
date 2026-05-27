@@ -28,6 +28,14 @@ public class ServiceDefinitionEntity {
     @Column(name = "sort_order", nullable = false)
     private int sortOrder;
 
+    /** QUANTITY = completed/total; STATUS = pending/progress/done only */
+    @Column(name = "progress_mode", nullable = false, length = 16)
+    private String progressMode = "STATUS";
+
+    /** POSTS | IMAGES | VIDEOS when progressMode is QUANTITY */
+    @Column(name = "quota_key", length = 16)
+    private String quotaKey;
+
     public String getId() {
         return id;
     }
@@ -74,5 +82,21 @@ public class ServiceDefinitionEntity {
 
     public void setSortOrder(int sortOrder) {
         this.sortOrder = sortOrder;
+    }
+
+    public String getProgressMode() {
+        return progressMode;
+    }
+
+    public void setProgressMode(String progressMode) {
+        this.progressMode = progressMode;
+    }
+
+    public String getQuotaKey() {
+        return quotaKey;
+    }
+
+    public void setQuotaKey(String quotaKey) {
+        this.quotaKey = quotaKey;
     }
 }

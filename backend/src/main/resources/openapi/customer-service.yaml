@@ -1043,10 +1043,18 @@ components:
 
     ProgressSummary:
       type: object
-      required: [overallPercent, completedPosts, completedImages, completedVideos, quotaPosts, quotaImages, quotaVideos, status]
+      required: [overallPercent, completedItems, totalItems, completedPosts, completedImages, completedVideos, quotaPosts, quotaImages, quotaVideos, status]
       properties:
         overallPercent:
           type: integer
+          minimum: 0
+          maximum: 100
+        completedItems:
+          type: integer
+          description: Tổng hạng mục đã hoàn thành (bài + ảnh + video)
+        totalItems:
+          type: integer
+          description: Tổng hạng mục cần thực hiện trong gói
         completedPosts:
           type: integer
         completedImages:
@@ -1065,7 +1073,7 @@ components:
 
     ServiceProgressItem:
       type: object
-      required: [id, name, percent, status]
+      required: [id, name, trackMode, percent, status]
       properties:
         id:
           type: string
@@ -1073,8 +1081,20 @@ components:
           type: string
         icon:
           type: string
+        trackMode:
+          type: string
+          enum: [quantity, status]
+          description: quantity = hiển thị completed/total; status = chỉ trạng thái
+        completedCount:
+          type: integer
+          description: Chỉ khi trackMode=quantity
+        totalCount:
+          type: integer
+          description: Chỉ khi trackMode=quantity
         percent:
           type: integer
+          minimum: 0
+          maximum: 100
         status:
           type: string
           enum: [pending, progress, done]

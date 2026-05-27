@@ -1,0 +1,21 @@
+server:
+  port: ${PORT:8082}
+  forward-headers-strategy: framework
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/customer_service}
+    username: ${SPRING_DATASOURCE_USERNAME:app}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+  sql:
+    init:
+      mode: always
+
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: WARN

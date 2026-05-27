@@ -7,6 +7,14 @@ ALTER TABLE app_users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP;
 -- If older rows have NULL role, default them to USER.
 UPDATE app_users SET role = 'USER' WHERE role IS NULL;
 
+-- Mobile dashboard: progress tracking columns on service_definitions
+ALTER TABLE service_definitions ADD COLUMN IF NOT EXISTS progress_mode VARCHAR(16);
+ALTER TABLE service_definitions ADD COLUMN IF NOT EXISTS quota_key VARCHAR(16);
+UPDATE service_definitions SET progress_mode = 'STATUS' WHERE progress_mode IS NULL;
+UPDATE service_definitions SET progress_mode = 'QUANTITY', quota_key = 'POSTS' WHERE id = 'posts';
+UPDATE service_definitions SET progress_mode = 'QUANTITY', quota_key = 'IMAGES' WHERE id = 'design';
+UPDATE service_definitions SET progress_mode = 'QUANTITY', quota_key = 'VIDEOS' WHERE id = 'video';
+
 -- Default admin: admin / password
 INSERT INTO app_users (id, username, password_hash, enabled, role, created_at, updated_at)
 VALUES (

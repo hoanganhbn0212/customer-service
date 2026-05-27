@@ -1,6 +1,5 @@
 import { computed, ref } from "vue";
 import {
-  DEMO_DEFAULTS,
   PACKAGE_CODES,
   PACKAGES,
   SCREENS,
@@ -8,8 +7,6 @@ import {
   getNotificationsForTier,
   getPackageTier,
   getActivePackageTitleKey,
-  getImplementationTasksForTier,
-  getServicesForPackage,
   loadStoredPackage,
   saveStoredPackage
 } from "../config/appScreenConfig";
@@ -39,15 +36,10 @@ function parseDate(iso) {
 }
 
 const activePackage = ref(loadStoredPackage());
-const packageStart = ref(DEMO_DEFAULTS.packageStart);
-const packageEnd = ref(DEMO_DEFAULTS.packageEnd);
-const completedPosts = ref(DEMO_DEFAULTS.completedPosts);
-const completedImages = ref(DEMO_DEFAULTS.completedImages);
-const completedVideos = ref(DEMO_DEFAULTS.completedVideos);
-const serviceProgress = ref({ ...DEMO_DEFAULTS.serviceProgress });
+const packageStart = ref("");
+const packageEnd = ref("");
 const scheduleMonth = ref(new Date());
 const selectedDate = ref(new Date());
-const dailyTasks = ref({ ...DEMO_DEFAULTS.dailyTasks });
 
 const homeSnapshot = ref(null);
 const servicesSnapshot = ref(null);
@@ -102,14 +94,7 @@ export function useAppScreen(screenId) {
     if (homeSnapshot.value?.progress) {
       return homeSnapshot.value.progress.overallPercent ?? 0;
     }
-    const p = pkg.value;
-    const total = p.posts + p.images + p.videos;
-    if (total === 0) return 0;
-    const completed =
-      Math.min(completedPosts.value, p.posts) +
-      Math.min(completedImages.value, p.images) +
-      Math.min(completedVideos.value, p.videos);
-    return Math.round((completed / total) * 100);
+    return 0;
   });
 
   const overallStatus = computed(() => {
@@ -121,6 +106,27 @@ export function useAppScreen(screenId) {
     return "pending";
   });
 
+  const overallCompleted = computed(() => {
+    if (homeSnapshot.value?.progress?.completedItems != null) {
+      return homeSnapshot.value.progress.completedItems;
+    }
+    return 0;
+  });
+
+  const overallTotal = computed(() => {
+    if (homeSnapshot.value?.progress?.totalItems != null) {
+      return homeSnapshot.value.progress.totalItems;
+    }
+    return 0;
+  });
+
+  const subscriptionStatus = computed(
+    () =>
+      homeSnapshot.value?.subscription?.status ||
+      servicesSnapshot.value?.activeSubscription?.status ||
+      "ACTIVE"
+  );
+
   const services = computed(() => {
     if (homeSnapshot.value?.services?.length) {
       return homeSnapshot.value.services.map((item, index) => ({
@@ -129,6 +135,9 @@ export function useAppScreen(screenId) {
         icon: item.icon || "doc",
         name: item.name,
         nameKey: null,
+        trackMode: item.trackMode || "status",
+        completedCount: item.completedCount ?? null,
+        totalCount: item.totalCount ?? null,
         percent: item.percent ?? 0,
         status: item.status
       }));
@@ -142,11 +151,14 @@ export function useAppScreen(screenId) {
         nameKey: null,
         desc: item.description,
         descKey: null,
+        trackMode: "status",
+        completedCount: null,
+        totalCount: null,
         percent: 0,
         status: "pending"
       }));
     }
-    return getServicesForPackage(activePackage.value, serviceProgress.value);
+    return [];
   });
 
   const implementationTasks = computed(() => {
@@ -165,7 +177,7 @@ export function useAppScreen(screenId) {
         reviewable: item.reviewable
       }));
     }
-    return getImplementationTasksForTier(tier.value);
+    return [];
   });
 
   const activePackageTitleKey = computed(() => {
@@ -228,7 +240,7 @@ export function useAppScreen(screenId) {
         time: task.scheduledTime || ""
       }));
     }
-    return dailyTasks.value[dateKey(selectedDate.value)] || [];
+    return [];
   });
 
   const monthLabel = computed(() => {
@@ -334,7 +346,10 @@ export function useAppScreen(screenId) {
     packageStart: packageStartDisplay,
     packageEnd: packageEndDisplay,
     overallPercent,
+    overallCompleted,
+    overallTotal,
     overallStatus,
+    subscriptionStatus,
     services,
     implementationTasks,
     notifications,

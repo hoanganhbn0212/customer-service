@@ -63,9 +63,14 @@
     "tierBasic": "Basic",
     "overallProgress": "Overall progress",
     "completionLabel": "Completion progress",
+    "progressFormula": "{completed}/{total} completed items",
     "statusDone": "Completed",
     "statusProgress": "In progress",
     "statusPending": "Not started",
+    "statusOnlyHint": "Status-based service",
+    "pkgActive": "Active",
+    "pkgExpired": "Expired",
+    "pkgCancelled": "Cancelled",
     "serviceList": "Service list",
     "service": {
       "fanpage": "Fanpage management",
@@ -73,7 +78,8 @@
       "ads": "Facebook ads",
       "report": "Reports & analytics",
       "posts": "Post writing",
-      "design": "Image design"
+      "design": "Image design",
+      "video": "Video editing"
     },
     "schedule": "Schedule",
     "monthYear": "Month {month}, {year}",
@@ -256,6 +262,18 @@
     "statusApproved": "Approved",
     "statusRejected": "Rejected",
     "statusAll": "All"
+  },
+  "adminProgress": {
+    "nav": "Package progress",
+    "title": "Progress management by package",
+    "subtitle": "ADMIN and DEVELOP can update completion progress per subscription.",
+    "filterAll": "All packages",
+    "empty": "No active subscriptions.",
+    "posts": "Completed posts",
+    "images": "Completed images",
+    "videos": "Completed videos",
+    "save": "Save progress",
+    "saveSuccess": "Progress updated for {user}."
   },
   "dashboard": {
     "title": "Customer Service",

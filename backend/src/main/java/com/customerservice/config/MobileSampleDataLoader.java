@@ -76,17 +76,14 @@ public class MobileSampleDataLoader implements ApplicationRunner {
     }
 
     private void seedPackages() {
-        if (servicePackageRepository.count() > 0) {
-            return;
-        }
-        savePackage("BASIC_15", "BASIC", "Gói Basic 15 bài", 15, 15, 0, 1);
-        savePackage("PRO_15", "PRO", "Gói Pro 15 bài", 15, 10, 5, 2);
-        savePackage("BASIC_30", "BASIC", "Gói Basic 30 bài", 30, 30, 0, 3);
-        savePackage("PRO_30", "PRO", "Gói Pro 30 bài", 30, 20, 10, 4);
+        savePackage("BASIC_15", "BASIC", "Gói 15 cơ bản", 15, 15, 0, 1);
+        savePackage("PRO_15", "PRO", "Gói 15 cao cấp", 15, 10, 5, 2);
+        savePackage("BASIC_30", "BASIC", "Gói 30 cơ bản", 30, 30, 0, 3);
+        savePackage("PRO_30", "PRO", "Gói 30 cao cấp", 30, 20, 10, 4);
     }
 
     private void savePackage(String code, String tier, String label, int posts, int images, int videos, int sort) {
-        ServicePackageEntity entity = new ServicePackageEntity();
+        ServicePackageEntity entity = servicePackageRepository.findById(code).orElseGet(ServicePackageEntity::new);
         entity.setCode(code);
         entity.setTier(tier);
         entity.setLabel(label);
@@ -94,48 +91,59 @@ public class MobileSampleDataLoader implements ApplicationRunner {
         entity.setQuotaImages(images);
         entity.setQuotaVideos(videos);
         entity.setSortOrder(sort);
+        entity.setActive(true);
         servicePackageRepository.save(entity);
     }
 
     private void seedDefinitions() {
-        if (serviceDefinitionRepository.count() > 0) {
-            return;
-        }
-        saveDef("posts", "edit", "Viết bài đăng", "Viết bài theo kế hoạch nội dung.", "BASIC", 1);
-        saveDef("design", "image", "Thiết kế hình ảnh", "Thiết kế hình ảnh cho bài đăng.", "BASIC", 2);
-        saveDef("fanpage", "doc", "Chăm sóc Fanpage", "Quản trị và duy trì fanpage.", "PRO", 3);
-        saveDef("content", "edit", "Sáng tạo nội dung", "Lên ý tưởng và nội dung đăng bài.", "PRO", 4);
-        saveDef("ads", "ads", "Quảng cáo", "Tối ưu chiến dịch Facebook Ads.", "PRO", 5);
-        saveDef("report", "chart", "Báo cáo", "Báo cáo hiệu suất định kỳ.", "PRO", 6);
-        saveDef("cover", "image", "Ảnh bìa / Avatar", "Thiết kế ảnh bìa và avatar.", "PRO", 7);
-        saveDef("like", "heart", "Like / Follow", "Tăng tương tác có kiểm soát.", "PRO", 8);
+        saveDef("posts", "edit", "Viết bài", "Viết bài theo kế hoạch nội dung.", "BASIC", 1, "QUANTITY", "POSTS");
+        saveDef("design", "image", "Thiết kế hình ảnh", "Thiết kế hình ảnh cho bài đăng.", "BASIC", 2, "QUANTITY", "IMAGES");
+        saveDef("video", "video", "Edit video", "Chỉnh sửa video ngắn cho fanpage.", "PRO", 3, "QUANTITY", "VIDEOS");
+        saveDef("fanpage", "doc", "Quản trị Fanpage", "Quản trị và duy trì fanpage.", "PRO", 4, "STATUS", null);
+        saveDef("content", "edit", "Sáng tạo nội dung", "Lên ý tưởng và nội dung đăng bài.", "PRO", 5, "STATUS", null);
+        saveDef("ads", "ads", "Báo cáo chạy ads", "Tối ưu và báo cáo chiến dịch Facebook Ads.", "PRO", 6, "STATUS", null);
+        saveDef("report", "chart", "Báo cáo hiệu suất", "Báo cáo hiệu suất fanpage định kỳ.", "PRO", 7, "STATUS", null);
+        saveDef("cover", "image", "Ảnh bìa / Avatar", "Thiết kế ảnh bìa và avatar.", "PRO", 8, "STATUS", null);
+        saveDef("like", "heart", "Like / Follow", "Tăng tương tác có kiểm soát.", "PRO", 9, "STATUS", null);
     }
 
-    private void saveDef(String id, String icon, String name, String desc, String tier, int sort) {
-        ServiceDefinitionEntity entity = new ServiceDefinitionEntity();
+    private void saveDef(
+            String id,
+            String icon,
+            String name,
+            String desc,
+            String tier,
+            int sort,
+            String progressMode,
+            String quotaKey
+    ) {
+        ServiceDefinitionEntity entity = serviceDefinitionRepository.findById(id).orElseGet(ServiceDefinitionEntity::new);
         entity.setId(id);
         entity.setIcon(icon);
         entity.setName(name);
         entity.setDescription(desc);
         entity.setTierScope(tier);
         entity.setSortOrder(sort);
+        entity.setProgressMode(progressMode);
+        entity.setQuotaKey(quotaKey);
         serviceDefinitionRepository.save(entity);
     }
 
     private void seedPackageLinks() {
-        if (packageServiceItemRepository.count() > 0) {
-            return;
-        }
-        link("PRO_15", "fanpage", "content", "ads", "report", "cover", "like");
-        link("PRO_30", "fanpage", "content", "ads", "report", "cover", "like");
         link("BASIC_15", "posts", "design");
         link("BASIC_30", "posts", "design");
+        link("PRO_15", "posts", "design", "video", "fanpage", "content", "ads", "report", "cover", "like");
+        link("PRO_30", "posts", "design", "video", "fanpage", "content", "ads", "report", "cover", "like");
     }
 
     private void link(String pkg, String... serviceIds) {
         for (String serviceId : serviceIds) {
+            PackageServiceItemId id = new PackageServiceItemId(pkg, serviceId);
+            if (packageServiceItemRepository.existsById(id)) {
+                continue;
+            }
             PackageServiceItemEntity item = new PackageServiceItemEntity();
-            item.setId(new PackageServiceItemId(pkg, serviceId));
+            item.setId(id);
             packageServiceItemRepository.save(item);
         }
     }

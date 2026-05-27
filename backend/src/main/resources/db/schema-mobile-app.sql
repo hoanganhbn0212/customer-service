@@ -20,7 +20,9 @@ CREATE TABLE IF NOT EXISTS service_definitions (
     name            VARCHAR(120) NOT NULL,
     description     TEXT,
     tier_scope      VARCHAR(10) NOT NULL,           -- BASIC | PRO | BOTH
-    sort_order      INT NOT NULL DEFAULT 0
+    sort_order      INT NOT NULL DEFAULT 0,
+    progress_mode   VARCHAR(16) NOT NULL DEFAULT 'STATUS', -- QUANTITY | STATUS
+    quota_key       VARCHAR(16)                          -- POSTS | IMAGES | VIDEOS (for QUANTITY)
 );
 
 CREATE TABLE IF NOT EXISTS package_service_items (
@@ -178,15 +180,16 @@ INSERT INTO service_packages (code, tier, label, quota_posts, quota_images, quot
     ('PRO_30',   'PRO',   'Gói Pro 30 bài',   30, 20, 10, 4)
 ON CONFLICT (code) DO NOTHING;
 
-INSERT INTO service_definitions (id, icon, name, description, tier_scope, sort_order) VALUES
-    ('posts',   'edit',  'Viết bài đăng', 'Viết bài theo kế hoạch nội dung.', 'BASIC', 1),
-    ('design',  'image', 'Thiết kế hình ảnh', 'Thiết kế hình ảnh cho bài đăng.', 'BASIC', 2),
-    ('fanpage', 'doc',   'Chăm sóc Fanpage', 'Quản trị và duy trì fanpage.', 'PRO', 3),
-    ('content', 'edit',  'Sáng tạo nội dung', 'Lên ý tưởng và nội dung đăng bài.', 'PRO', 4),
-    ('ads',     'ads',   'Quảng cáo', 'Tối ưu chiến dịch Facebook Ads.', 'PRO', 5),
-    ('report',  'chart', 'Báo cáo', 'Báo cáo hiệu suất định kỳ.', 'PRO', 6),
-    ('cover',   'image', 'Ảnh bìa / Avatar', 'Thiết kế ảnh bìa và avatar.', 'PRO', 7),
-    ('like',    'heart', 'Like / Follow', 'Tăng tương tác có kiểm soát.', 'PRO', 8)
+INSERT INTO service_definitions (id, icon, name, description, tier_scope, sort_order, progress_mode, quota_key) VALUES
+    ('posts',   'edit',  'Viết bài', 'Viết bài theo kế hoạch nội dung.', 'BASIC', 1, 'QUANTITY', 'POSTS'),
+    ('design',  'image', 'Thiết kế hình ảnh', 'Thiết kế hình ảnh cho bài đăng.', 'BASIC', 2, 'QUANTITY', 'IMAGES'),
+    ('video',   'video', 'Edit video', 'Chỉnh sửa video ngắn cho fanpage.', 'PRO', 3, 'QUANTITY', 'VIDEOS'),
+    ('fanpage', 'doc',   'Quản trị Fanpage', 'Quản trị và duy trì fanpage.', 'PRO', 4, 'STATUS', NULL),
+    ('content', 'edit',  'Sáng tạo nội dung', 'Lên ý tưởng và nội dung đăng bài.', 'PRO', 5, 'STATUS', NULL),
+    ('ads',     'ads',   'Báo cáo chạy ads', 'Tối ưu và báo cáo chiến dịch Facebook Ads.', 'PRO', 6, 'STATUS', NULL),
+    ('report',  'chart', 'Báo cáo hiệu suất', 'Báo cáo hiệu suất định kỳ.', 'PRO', 7, 'STATUS', NULL),
+    ('cover',   'image', 'Ảnh bìa / Avatar', 'Thiết kế ảnh bìa và avatar.', 'PRO', 8, 'STATUS', NULL),
+    ('like',    'heart', 'Like / Follow', 'Tăng tương tác có kiểm soát.', 'PRO', 9, 'STATUS', NULL)
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO package_service_items (package_code, service_id)
@@ -200,4 +203,10 @@ SELECT 'PRO_15', id FROM service_definitions WHERE id IN ('fanpage','content','a
 ON CONFLICT DO NOTHING;
 INSERT INTO package_service_items (package_code, service_id)
 SELECT 'PRO_30', id FROM service_definitions WHERE id IN ('fanpage','content','ads','report','cover','like')
+ON CONFLICT DO NOTHING;
+INSERT INTO package_service_items (package_code, service_id)
+SELECT 'PRO_15', id FROM service_definitions WHERE id IN ('posts','design','video')
+ON CONFLICT DO NOTHING;
+INSERT INTO package_service_items (package_code, service_id)
+SELECT 'PRO_30', id FROM service_definitions WHERE id IN ('posts','design','video')
 ON CONFLICT DO NOTHING;

@@ -55,3 +55,17 @@ export function reviewPackageUpgradeRequest(id, body) {
     body: JSON.stringify(body)
   });
 }
+
+export function listSubscriptionProgress(packageCode) {
+  const params = new URLSearchParams();
+  if (packageCode) params.set("packageCode", packageCode);
+  const qs = params.toString();
+  return adminFetch(`/api/v1/admin/subscription-progress${qs ? `?${qs}` : ""}`);
+}
+
+export function updateSubscriptionProgress(subscriptionId, body) {
+  return adminFetch(`/api/v1/admin/subscription-progress/${subscriptionId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body)
+  });
+}

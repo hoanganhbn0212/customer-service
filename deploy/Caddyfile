@@ -1,0 +1,17 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	root * /srv
+	encode gzip zstd
+
+	handle /api/* {
+		reverse_proxy backend:8082
+	}
+
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
+}

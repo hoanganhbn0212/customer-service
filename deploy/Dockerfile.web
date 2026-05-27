@@ -1,0 +1,13 @@
+FROM node:20-alpine AS fe
+WORKDIR /app
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+COPY backend/src/main/resources/openapi/customer-service.yaml /openapi/customer-service.yaml
+RUN npx openapi --input /openapi/customer-service.yaml --output src/api --client fetch \
+    && node scripts/patch-openapi-base.js
+RUN npm run build
+
+FROM caddy:2-alpine
+COPY --from=fe /app/dist /srv
+COPY deploy/Caddyfile /etc/caddy/Caddyfile

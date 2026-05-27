@@ -17,7 +17,10 @@ const {
   packageStart,
   packageEnd,
   overallPercent,
+  overallCompleted,
+  overallTotal,
   overallStatus,
+  subscriptionStatus,
   services,
   weekDays,
   tasksForSelectedDay,
@@ -45,8 +48,11 @@ onMounted(async () => {
 const packageLabel = (p) => subscriptionTitle.value || t(p.labelKey);
 const serviceName = (item) => item.name || t(item.nameKey);
 const taskTitle = (task) => task.title || t(task.titleKey);
+const serviceTrackMode = (item) => String(item.trackMode || "").toLowerCase();
+const isQuantityService = (item) => serviceTrackMode(item) === "quantity";
 
 const formatDate = (iso) => {
+  if (!iso) return "—";
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 };
@@ -57,6 +63,12 @@ const statusLabel = (status) => {
   return t("home.statusPending");
 };
 
+const packageStatusLabel = (status) => {
+  if (status === "ACTIVE") return t("home.pkgActive");
+  if (status === "EXPIRED") return t("home.pkgExpired");
+  return t("home.pkgCancelled");
+};
+
 const serviceIcon = (id) => {
   const map = {
     fanpage: "doc",
@@ -65,6 +77,7 @@ const serviceIcon = (id) => {
     report: "chart",
     posts: "edit",
     design: "image",
+    video: "video",
     cover: "image",
     like: "heart"
   };
@@ -84,7 +97,7 @@ const goNotifications = () => router.push("/notifications");
     />
 
     <div class="mobile-page-body">
-      <article v-if="hasBlock('packageCard')" class="card package-card">
+      <article v-if="hasBlock('packageCard')" class="card package-card blue-card">
         <button type="button" class="package-inner">
           <span class="crown-wrap" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="currentColor">
@@ -97,6 +110,9 @@ const goNotifications = () => router.push("/notifications");
             <span class="package-row">
               <strong>{{ packageLabel(pkg) }}</strong>
               <span class="tier-pill">{{ t(pkg.tierKey) }}</span>
+              <span class="status-pill" :class="subscriptionStatus.toLowerCase()">
+                {{ packageStatusLabel(subscriptionStatus) }}
+              </span>
             </span>
             <span class="package-date">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
@@ -106,7 +122,6 @@ const goNotifications = () => router.push("/notifications");
               {{ formatDate(packageStart) }} – {{ formatDate(packageEnd) }}
             </span>
           </span>
-          <span class="chevron" aria-hidden="true">›</span>
         </button>
       </article>
 
@@ -115,13 +130,13 @@ const goNotifications = () => router.push("/notifications");
         <div class="progress-block">
           <div class="ring-wrap">
             <svg class="ring" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" :r="progressRing.r" fill="none" stroke="#e8eef5" stroke-width="10" />
+              <circle cx="60" cy="60" :r="progressRing.r" fill="none" stroke="#dbeafe" stroke-width="10" />
               <circle
                 cx="60"
                 cy="60"
                 :r="progressRing.r"
                 fill="none"
-                stroke="#1a6dff"
+                stroke="#2563eb"
                 stroke-width="10"
                 stroke-linecap="round"
                 :stroke-dasharray="progressRing.c"
@@ -133,6 +148,9 @@ const goNotifications = () => router.push("/notifications");
           </div>
           <div class="progress-meta">
             <p class="meta-title">{{ t("home.completionLabel") }}</p>
+            <p class="formula-line">
+              {{ t("home.progressFormula", { completed: overallCompleted, total: overallTotal }) }}
+            </p>
             <div class="bar-track">
               <div class="bar-fill" :style="{ width: `${overallPercent}%` }" />
             </div>
@@ -147,13 +165,27 @@ const goNotifications = () => router.push("/notifications");
       <section v-if="hasBlock('serviceList')" class="card">
         <h2 class="section-title">{{ t("home.serviceList") }}</h2>
         <ul class="service-list">
-          <li v-for="item in services" :key="item.id">
+          <li v-for="item in services" :key="item.id" class="svc-row">
             <span class="svc-icon" :data-icon="serviceIcon(item.id)" />
-            <span class="svc-body">
-              <span class="svc-name">{{ item.index }}. {{ serviceName(item) }}</span>
-              <span class="svc-percent">{{ item.percent }}%</span>
-            </span>
-            <span class="status-pill" :class="item.status">{{ statusLabel(item.status) }}</span>
+            <div class="svc-body">
+              <div class="svc-head">
+                <span class="svc-name">{{ item.index }}. {{ serviceName(item) }}</span>
+                <span class="status-pill mini" :class="item.status">{{ statusLabel(item.status) }}</span>
+              </div>
+
+              <template v-if="isQuantityService(item)">
+                <div class="svc-quantity">
+                  <strong>{{ item.completedCount ?? 0 }}</strong> / {{ item.totalCount ?? 0 }}
+                  <span class="svc-percent">{{ item.percent }}%</span>
+                </div>
+                <div class="bar-track small">
+                  <div class="bar-fill" :style="{ width: `${item.percent}%` }" />
+                </div>
+              </template>
+              <template v-else>
+                <div class="svc-status-only">{{ t("home.statusOnlyHint") }}: {{ statusLabel(item.status) }}</div>
+              </template>
+            </div>
           </li>
         </ul>
       </section>
@@ -196,4 +228,68 @@ const goNotifications = () => router.push("/notifications");
 
 <style scoped>
 @import "../styles/mobile-page.css";
+
+.blue-card {
+  border: 1px solid #dbeafe;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.formula-line {
+  margin: 0 0 8px;
+  color: #1e40af;
+  font-size: 0.82rem;
+}
+
+.svc-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.svc-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.svc-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.svc-quantity {
+  margin-top: 4px;
+  color: #1e3a8a;
+  font-size: 0.82rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.svc-status-only {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.bar-track.small {
+  margin-top: 6px;
+  height: 8px;
+}
+
+.status-pill.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-pill.expired,
+.status-pill.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-pill.mini {
+  font-size: 0.68rem;
+  padding: 2px 8px;
+}
 </style>

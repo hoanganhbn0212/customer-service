@@ -6,3 +6,4 @@ frontend/dist/
 *.iml
 .DS_Store
 backend/src/main/resources/application-local.yml
+deploy/.env

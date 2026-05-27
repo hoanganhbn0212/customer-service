@@ -322,6 +322,7 @@ export const ACCOUNT_MENUS = [
     items: [
       { id: "admin-users", labelKey: "admin.nav", route: "/admin/users", roles: ["ADMIN"] },
       { id: "admin-subs", labelKey: "adminSubs.nav", route: "/admin/subscriptions", roles: ["ADMIN"] },
+      { id: "admin-progress", labelKey: "adminProgress.nav", route: "/admin/progress", roles: ["ADMIN", "DEVELOP"] },
       { id: "admin-theme", labelKey: "theme.nav", route: "/admin/theme", roles: ["ADMIN", "DEVELOP"] },
       { id: "admin-customers", labelKey: "dashboard.title", route: "/customers", roles: ["ADMIN"] }
     ]

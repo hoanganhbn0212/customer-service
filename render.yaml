@@ -1,0 +1,41 @@
+# Render Blueprint (free): backend API + Postgres
+# https://render.com — New > Blueprint > connect repo
+databases:
+  - name: customer-db
+    plan: free
+    databaseName: customer_service
+    user: app
+
+services:
+  - type: web
+    name: customer-service-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /api/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod,render
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_HOST
+        fromDatabase:
+          name: customer-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: customer-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: customer-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: customer-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: customer-db
+          property: password
