@@ -1,0 +1,39 @@
+{
+  "lang": {
+    "en": "English",
+    "vi": "Vietnamese"
+  },
+  "login": {
+    "brandTitle": "Welcome to ArchitectUI",
+    "title": "Sign in to your account",
+    "subtitle": "Welcome back! Please enter your details.",
+    "userName": "Username",
+    "userNamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "signIn": "Sign in",
+    "signingIn": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up now",
+    "copyright": "© 2026 ArchitectUI. All rights reserved.",
+    "errorRequired": "Please enter your username and password.",
+    "errorInvalid": "Invalid username or password.",
+    "errorNetwork": "Cannot reach server. Check that the backend is running."
+  },
+  "dashboard": {
+    "title": "Customer Service",
+    "logout": "Log out",
+    "backend": "Backend",
+    "addCustomer": "Add customer",
+    "namePlaceholder": "Name",
+    "emailPlaceholder": "Email",
+    "create": "Create",
+    "list": "Customer list",
+    "refresh": "Refresh",
+    "delete": "Delete",
+    "empty": "No customers yet.",
+    "notChecked": "Not checked"
+  }
+}

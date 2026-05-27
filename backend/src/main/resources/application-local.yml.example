@@ -1,0 +1,8 @@
+# Copy to application-local.yml and adjust for your machine.
+# Spring Boot loads application-local.yml automatically when present.
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/customer_service
+    username: hydro_reader
+    password: hydro_reader

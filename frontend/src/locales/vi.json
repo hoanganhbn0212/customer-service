@@ -1,0 +1,39 @@
+{
+  "lang": {
+    "en": "Tiếng Anh",
+    "vi": "Tiếng Việt"
+  },
+  "login": {
+    "brandTitle": "Chào mừng đến ArchitectUI",
+    "title": "Đăng nhập tài khoản",
+    "subtitle": "Chào mừng trở lại! Vui lòng nhập thông tin của bạn.",
+    "userName": "Tên đăng nhập",
+    "userNamePlaceholder": "Nhập tên đăng nhập",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "forgotPassword": "Quên mật khẩu?",
+    "signIn": "Đăng nhập",
+    "signingIn": "Đang đăng nhập...",
+    "noAccount": "Chưa có tài khoản?",
+    "signUp": "Đăng ký ngay",
+    "copyright": "© 2026 ArchitectUI. Bảo lưu mọi quyền.",
+    "errorRequired": "Vui lòng nhập tên đăng nhập và mật khẩu.",
+    "errorInvalid": "Tên đăng nhập hoặc mật khẩu không hợp lệ.",
+    "errorNetwork": "Không kết nối được server. Kiểm tra backend đang chạy."
+  },
+  "dashboard": {
+    "title": "Dịch vụ khách hàng",
+    "logout": "Đăng xuất",
+    "backend": "Backend",
+    "addCustomer": "Thêm khách hàng",
+    "namePlaceholder": "Tên",
+    "emailPlaceholder": "Email",
+    "create": "Tạo",
+    "list": "Danh sách",
+    "refresh": "Làm mới",
+    "delete": "Xóa",
+    "empty": "Chưa có khách hàng.",
+    "notChecked": "Chưa kiểm tra"
+  }
+}

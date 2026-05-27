@@ -15,19 +15,41 @@ Spec OpenAPI dat tai:
 2. Backend tu dong generate API interface + model khi build Maven.
 3. Frontend generate API client tu chinh file spec.
 
-## 1) Run Backend (Spring Boot + Maven)
+## 1) PostgreSQL
 
-Yeu cau: JDK 17+ va Maven.
+Chay database bang Docker:
+
+```bash
+docker compose up -d
+```
+
+Thong tin ket noi mac dinh:
+
+| Thuoc tinh | Gia tri |
+|------------|---------|
+| Host | `localhost` |
+| Port | `5432` |
+| Database | `customer_service` |
+| User | `hydro_reader` |
+| Password | `hydro_reader` |
+
+Doi mat khau / URL: copy `backend/src/main/resources/application-local.yml.example` thanh `application-local.yml` va chinh sua.
+
+## 2) Run Backend (Spring Boot + Maven)
+
+Yeu cau: JDK 17+, Maven, PostgreSQL dang chay.
 
 ```bash
 cd backend
-mvn clean spring-boot:run
+.\mvnw.cmd clean spring-boot:run
 ```
 
-Backend chay tai: `http://localhost:8080`  
-Health API: `http://localhost:8080/api/health`
+(Khong can cai Maven global — `mvnw.cmd` tu tai Maven khi chay lan dau.)
 
-## 2) Generate frontend API client
+Backend chay tai: `http://localhost:8082`  
+Health API: `http://localhost:8082/api/health`
+
+## 3) Generate frontend API client
 
 Yeu cau: Node.js 18+.
 
@@ -39,7 +61,7 @@ npm run gen:api
 
 Lenh `gen:api` doc spec tu backend va tao client vao `frontend/src/api` (ghi de client hien tai).
 
-## 3) Run Frontend
+## 4) Run Frontend
 
 ```bash
 cd frontend
@@ -47,7 +69,7 @@ npm run dev
 ```
 
 Frontend chay tai: `http://localhost:5173`  
-Frontend da cau hinh proxy `/api` sang backend `http://localhost:8080`.
+Frontend da cau hinh proxy `/api` sang backend `http://localhost:8082`.
 
 ## Script nhanh (Windows)
 
@@ -58,6 +80,14 @@ Frontend da cau hinh proxy `/api` sang backend `http://localhost:8080`.
 # Terminal 2
 .\scripts\run-frontend.ps1
 ```
+
+## API Auth (port tu module auth)
+
+- `POST /api/v1/auth/login` — body: `{ "userName": "admin", "password": "password" }`
+- `POST /api/v1/auth/register`
+- `GET /api/v1/me`
+
+User mac dinh (seed DB): **admin** / **password**
 
 ## API trong spec
 

@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: customer-service-postgres
+    environment:
+      POSTGRES_DB: customer_service
+      POSTGRES_USER: hydro_reader
+      POSTGRES_PASSWORD: hydro_reader
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hydro_reader -d customer_service"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

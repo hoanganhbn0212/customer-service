@@ -1,6 +1,28 @@
 server:
-  port: 8080
+  port: 8082
 
 spring:
   application:
     name: customer-service-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/customer_service
+    username: hydro_reader
+    password: hydro_reader
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: always
+
+auth:
+  jwt:
+    secret: ${JWT_SECRET:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+    expiration-seconds: ${JWT_EXPIRATION_SECONDS:3600}
