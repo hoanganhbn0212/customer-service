@@ -1,5 +1,6 @@
 package com.customerservice.service.mobile;
 
+import com.customerservice.entity.mobile.ContentReviewEntity;
 import com.customerservice.entity.mobile.DeliverableEntity;
 import com.customerservice.entity.mobile.ImplementationItemEntity;
 import com.customerservice.entity.mobile.ScheduleTaskEntity;
@@ -10,6 +11,7 @@ import com.customerservice.entity.mobile.SubscriptionServiceProgressId;
 import com.customerservice.entity.mobile.UserSubscriptionEntity;
 import com.customerservice.model.AdminAssignSubscriptionRequest;
 import com.customerservice.model.SubscriptionSummary;
+import com.customerservice.repository.mobile.ContentReviewRepository;
 import com.customerservice.repository.mobile.DeliverableRepository;
 import com.customerservice.repository.mobile.ImplementationItemRepository;
 import com.customerservice.repository.mobile.ScheduleTaskRepository;
@@ -35,6 +37,7 @@ public class SubscriptionProvisioningService {
     private final SubscriptionServiceProgressRepository subscriptionServiceProgressRepository;
     private final ImplementationItemRepository implementationItemRepository;
     private final DeliverableRepository deliverableRepository;
+    private final ContentReviewRepository contentReviewRepository;
     private final ScheduleTaskRepository scheduleTaskRepository;
 
     public SubscriptionProvisioningService(
@@ -44,6 +47,7 @@ public class SubscriptionProvisioningService {
             SubscriptionServiceProgressRepository subscriptionServiceProgressRepository,
             ImplementationItemRepository implementationItemRepository,
             DeliverableRepository deliverableRepository,
+            ContentReviewRepository contentReviewRepository,
             ScheduleTaskRepository scheduleTaskRepository
     ) {
         this.userSubscriptionRepository = userSubscriptionRepository;
@@ -52,6 +56,7 @@ public class SubscriptionProvisioningService {
         this.subscriptionServiceProgressRepository = subscriptionServiceProgressRepository;
         this.implementationItemRepository = implementationItemRepository;
         this.deliverableRepository = deliverableRepository;
+        this.contentReviewRepository = contentReviewRepository;
         this.scheduleTaskRepository = scheduleTaskRepository;
     }
 
@@ -62,7 +67,7 @@ public class SubscriptionProvisioningService {
         return assignPackage(
                 userId,
                 "BASIC_15",
-                "Gói 15 cơ bản",
+                null,
                 start,
                 end,
                 true
@@ -76,6 +81,9 @@ public class SubscriptionProvisioningService {
     ) {
         ServicePackageEntity pkg = servicePackageRepository.findById(request.getPackageCode())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_PACKAGE"));
+        if (!pkg.isActive()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INACTIVE_PACKAGE");
+        }
 
         LocalDate start = request.getStartDate() != null ? request.getStartDate() : LocalDate.now();
         LocalDate end = request.getEndDate() != null ? request.getEndDate() : start.plusMonths(3);
@@ -93,7 +101,7 @@ public class SubscriptionProvisioningService {
         return assignPackage(
                 userId,
                 "PRO_15",
-                "Chăm sóc Fanpage Pro",
+                null,
                 LocalDate.of(2024, 5, 1),
                 LocalDate.of(2024, 8, 1),
                 true
@@ -113,6 +121,9 @@ public class SubscriptionProvisioningService {
 
         ServicePackageEntity pkg = servicePackageRepository.findById(packageCode)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_PACKAGE"));
+        if (!pkg.isActive()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INACTIVE_PACKAGE");
+        }
 
         UserSubscriptionEntity sub = new UserSubscriptionEntity();
         sub.setUserId(userId);
@@ -120,16 +131,18 @@ public class SubscriptionProvisioningService {
         sub.setStatus("ACTIVE");
         sub.setStartDate(startDate);
         sub.setEndDate(endDate);
-        sub.setDisplayTitle(displayTitle);
-        userSubscriptionRepository.save(sub);
+        sub.setDisplayTitle(displayTitle != null && !displayTitle.isBlank() ? displayTitle : pkg.getLabel());
+        sub.setServicePackage(pkg);
+        UserSubscriptionEntity saved = userSubscriptionRepository.save(sub);
+        saved.setServicePackage(pkg);
 
-        UUID subId = sub.getId();
+        UUID subId = saved.getId();
         seedProgress(subId, pkg, fullDemo);
-        seedImplementation(subId, pkg.getTier(), fullDemo);
+        seedImplementation(subId, userId, pkg.getTier(), fullDemo);
         if (fullDemo) {
             seedDemoSchedule(subId);
         }
-        return sub;
+        return saved;
     }
 
     private void expireActiveSubscriptions(String userId) {
@@ -164,18 +177,45 @@ public class SubscriptionProvisioningService {
         }
     }
 
-    private void seedImplementation(UUID subId, String tier, boolean fullDemo) {
+    private void seedImplementation(UUID subId, String userId, String tier, boolean fullDemo) {
         if ("PRO".equals(tier) && fullDemo) {
             ImplementationItemEntity designPost = saveImpl(subId, "design_post", "content", "Thiết kế bài đăng", 12, 24, "approved", LocalDate.now().minusDays(1), 1);
             ImplementationItemEntity seo = saveImpl(subId, "seo_content", "content", "Lên nội dung SEO", 8, 16, "in_progress", LocalDate.now().minusDays(2), 2);
             saveImpl(subId, "run_ads", "ads", "Chạy quảng cáo", 2, 5, "waiting_feedback", LocalDate.now().minusDays(3), 3);
             saveImpl(subId, "weekly_report", "report", "Báo cáo tuần", 23, 24, "approved", LocalDate.now().minusDays(4), 4);
-            saveDeliverable(subId, designPost, "1256",
+            DeliverableEntity designDeliverable = saveDeliverable(subId, designPost, "1256",
                     "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=160&h=160&fit=crop",
-                    "8.5", "9.0", "responded");
+                    "8.5", "9.0", "responded",
+                    LocalDate.of(2026, 6, 5),
+                    "Giới thiệu dịch vụ chăm sóc da",
+                    "Nêu vấn đề da khô, sau đó giới thiệu liệu trình chăm sóc da chuyên sâu",
+                    "Nội dung chi tiết bài viết",
+                    "completed",
+                    "https://example.com/content/skincare-post.pdf",
+                    LocalDate.of(2026, 6, 5),
+                    "Banner ưu đãi tháng 6",
+                    "image",
+                    "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=900&h=600&fit=crop",
+                    "Màu sắc đẹp, bố cục rõ ràng",
+                    "Có thể làm nổi bật nút ưu đãi hơn");
+            saveSubmittedReview(designDeliverable.getId(), userId, 8,
+                    "Nội dung ổn, cần thêm CTA mạnh hơn",
+                    "Thêm lời kêu gọi đặt lịch và ưu đãi cuối bài");
             saveDeliverable(subId, seo, "1240",
                     "https://images.unsplash.com/photo-1570172619644-dfdcef6e0e0c?w=160&h=160&fit=crop",
-                    "8.0", "8.5", "responded");
+                    "8.0", "8.5", "responded",
+                    LocalDate.of(2026, 6, 8),
+                    "Tối ưu nội dung SEO cho fanpage",
+                    "Tập trung từ khóa dịch vụ chính, mở bài bằng pain point và kết thúc bằng CTA",
+                    "Bài viết SEO nháp đang được hoàn thiện.",
+                    "doing",
+                    null,
+                    LocalDate.of(2026, 6, 8),
+                    "Video giới thiệu liệu trình",
+                    "video",
+                    null,
+                    null,
+                    null);
         } else if ("PRO".equals(tier)) {
             saveImpl(subId, "design_post", "content", "Thiết kế bài đăng", 0, 15, "in_progress", LocalDate.now(), 1);
             saveImpl(subId, "run_ads", "ads", "Chạy quảng cáo", 0, 5, "in_progress", LocalDate.now(), 2);
@@ -185,7 +225,19 @@ public class SubscriptionProvisioningService {
             if (fullDemo) {
                 saveDeliverable(subId, write, "1180",
                         "https://images.unsplash.com/photo-1612817288484-6f933f271cf2?w=160&h=160&fit=crop",
-                        "7.5", "8.0", "pending");
+                        "7.5", "8.0", "pending",
+                        LocalDate.of(2026, 6, 5),
+                        "Giới thiệu dịch vụ chăm sóc da",
+                        "Nêu vấn đề da khô, sau đó giới thiệu liệu trình chăm sóc da chuyên sâu",
+                        "Nội dung chi tiết bài viết",
+                        "waiting_customer",
+                        null,
+                        LocalDate.of(2026, 6, 5),
+                        "Banner ưu đãi tháng 6",
+                        "image",
+                        null,
+                        null,
+                        null);
             }
         }
     }
@@ -227,24 +279,70 @@ public class SubscriptionProvisioningService {
         return implementationItemRepository.save(item);
     }
 
-    private void saveDeliverable(
+    private DeliverableEntity saveDeliverable(
             UUID subId,
             ImplementationItemEntity item,
             String postNumber,
             String thumb,
             String contentScore,
             String designScore,
-            String responseStatus
+            String responseStatus,
+            LocalDate plannedPublishDate,
+            String topic,
+            String ideaFrame,
+            String postContent,
+            String contentStatus,
+            String attachmentUrl,
+            LocalDate completedOn,
+            String mediaName,
+            String mediaType,
+            String previewUrl,
+            String designCustomerComment,
+            String designImprovementSuggestion
     ) {
         DeliverableEntity d = new DeliverableEntity();
         d.setSubscriptionId(subId);
         d.setImplementationItemId(item.getId());
         d.setPostNumber(postNumber);
+        d.setPlannedPublishDate(plannedPublishDate);
+        d.setTopic(topic);
+        d.setIdeaFrame(ideaFrame);
+        d.setPostContent(postContent);
+        d.setContentStatus(contentStatus);
+        d.setAttachmentUrl(attachmentUrl);
+        d.setCompletedOn(completedOn);
+        d.setMediaName(mediaName);
+        d.setMediaType(mediaType);
+        d.setPreviewUrl(previewUrl);
+        d.setDesignCustomerComment(designCustomerComment);
+        d.setDesignImprovementSuggestion(designImprovementSuggestion);
         d.setThumbnailUrl(thumb);
         d.setTeamContentScore(new BigDecimal(contentScore));
         d.setTeamDesignScore(new BigDecimal(designScore));
         d.setCompanyResponseStatus(responseStatus);
-        deliverableRepository.save(d);
+        return deliverableRepository.save(d);
+    }
+
+    private void saveSubmittedReview(
+            UUID deliverableId,
+            String userId,
+            int score,
+            String comments,
+            String suggestions
+    ) {
+        if (contentReviewRepository.findByDeliverableIdAndUserIdAndStatus(deliverableId, userId, "SUBMITTED").isPresent()) {
+            return;
+        }
+        ContentReviewEntity review = new ContentReviewEntity();
+        review.setDeliverableId(deliverableId);
+        review.setUserId(userId);
+        review.setReviewType("CONTENT");
+        review.setQualityScore(score);
+        review.setComments(comments);
+        review.setSuggestions(suggestions);
+        review.setStatus("SUBMITTED");
+        review.setSubmittedAt(java.time.LocalDateTime.now());
+        contentReviewRepository.save(review);
     }
 
     private void saveSchedule(UUID subId, LocalDate date, String title, String time, int sort) {

@@ -9,6 +9,7 @@ import SubscriptionsAdminView from "../views/SubscriptionsAdminView.vue";
 import ProgressAdminView from "../views/ProgressAdminView.vue";
 import ServicesView from "../views/ServicesView.vue";
 import ServiceReviewView from "../views/ServiceReviewView.vue";
+import ScheduleView from "../views/ScheduleView.vue";
 import NotificationsView from "../views/NotificationsView.vue";
 import AccountView from "../views/AccountView.vue";
 
@@ -30,6 +31,12 @@ const router = createRouter({
       path: "/services",
       name: "services",
       component: ServicesView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: "/schedule",
+      name: "schedule",
+      component: ScheduleView,
       meta: { requiresAuth: true }
     },
     {

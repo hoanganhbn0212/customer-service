@@ -15,6 +15,12 @@ public class SubscriptionServiceProgressEntity {
     @Column(nullable = false)
     private int percent;
 
+    @Column(name = "completed_count")
+    private Integer completedCount;
+
+    @Column(name = "target_count")
+    private Integer targetCount;
+
     public SubscriptionServiceProgressId getId() {
         return id;
     }
@@ -29,5 +35,21 @@ public class SubscriptionServiceProgressEntity {
 
     public void setPercent(int percent) {
         this.percent = percent;
+    }
+
+    public Integer getCompletedCount() {
+        return completedCount;
+    }
+
+    public void setCompletedCount(Integer completedCount) {
+        this.completedCount = completedCount;
+    }
+
+    public Integer getTargetCount() {
+        return targetCount;
+    }
+
+    public void setTargetCount(Integer targetCount) {
+        this.targetCount = targetCount;
     }
 }

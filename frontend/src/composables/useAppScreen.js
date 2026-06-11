@@ -3,6 +3,7 @@ import {
   PACKAGE_CODES,
   PACKAGES,
   SCREENS,
+  DAILY_SCHEDULE_ITEMS,
   getAccountMenusForRole,
   getNotificationsForTier,
   getPackageTier,
@@ -10,7 +11,7 @@ import {
   loadStoredPackage,
   saveStoredPackage
 } from "../config/appScreenConfig";
-import { getMobileHome, getMobileServices } from "../api/mobileApi";
+import { getMobileHome, getMobileServices, listAvailablePackages } from "../api/mobileApi";
 import { getUserRole } from "../auth/session";
 
 const DOW_KEYS = [
@@ -35,6 +36,12 @@ function parseDate(iso) {
   return new Date(y, m - 1, d);
 }
 
+function formatDisplayDate(iso) {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
 const activePackage = ref(loadStoredPackage());
 const packageStart = ref("");
 const packageEnd = ref("");
@@ -43,9 +50,35 @@ const selectedDate = ref(new Date());
 
 const homeSnapshot = ref(null);
 const servicesSnapshot = ref(null);
+const packageCatalog = ref([]);
 const homeLoading = ref(false);
 const servicesLoading = ref(false);
 const apiError = ref(null);
+
+const fallbackPackageOptions = PACKAGE_CODES.map((code) => ({
+  code,
+  label: null,
+  labelKey: PACKAGES[code].labelKey,
+  tier: PACKAGES[code].tier,
+  tierKey: PACKAGES[code].tierKey,
+  quotaPosts: PACKAGES[code].posts,
+  quotaImages: PACKAGES[code].images,
+  quotaVideos: PACKAGES[code].videos
+}));
+
+function toPackageOption(item) {
+  const fallback = PACKAGES[item.code];
+  return {
+    code: item.code,
+    label: item.label,
+    labelKey: fallback?.labelKey ?? null,
+    tier: item.tier,
+    tierKey: fallback?.tierKey ?? (item.tier === "PRO" ? "home.tierPro" : "home.tierBasic"),
+    quotaPosts: item.quotaPosts,
+    quotaImages: item.quotaImages,
+    quotaVideos: item.quotaVideos
+  };
+}
 
 export function useAppScreen(screenId) {
   const screen = computed(() => SCREENS[screenId] ?? {});
@@ -55,7 +88,11 @@ export function useAppScreen(screenId) {
       homeSnapshot.value?.subscription?.packageCode ||
       servicesSnapshot.value?.activeSubscription?.packageCode ||
       activePackage.value;
-    return PACKAGES[code] ?? PACKAGES.PRO_15;
+    return (
+      packageCatalog.value.find((item) => item.code === code) ||
+      fallbackPackageOptions.find((item) => item.code === code) ||
+      fallbackPackageOptions[1]
+    );
   });
 
   const tier = computed(() => {
@@ -77,15 +114,11 @@ export function useAppScreen(screenId) {
   });
 
   const packageOptions = computed(() =>
-    PACKAGE_CODES.map((code) => ({
-      code,
-      labelKey: PACKAGES[code].labelKey,
-      tierKey: PACKAGES[code].tierKey
-    }))
+    packageCatalog.value.length ? packageCatalog.value : fallbackPackageOptions
   );
 
   function setActivePackage(code) {
-    if (!PACKAGE_CODES.includes(code)) return;
+    if (!packageOptions.value.some((item) => item.code === code)) return;
     activePackage.value = code;
     saveStoredPackage(code);
   }
@@ -120,12 +153,65 @@ export function useAppScreen(screenId) {
     return 0;
   });
 
+  const progressBreakdown = computed(() => {
+    const progress = homeSnapshot.value?.progress;
+    if (!progress) {
+      return [];
+    }
+    const rows = [
+      {
+        id: "posts",
+        labelKey: "home.progressPosts",
+        completed: progress.completedPosts ?? 0,
+        total: progress.quotaPosts ?? 0
+      },
+      {
+        id: "images",
+        labelKey: "home.progressImages",
+        completed: progress.completedImages ?? 0,
+        total: progress.quotaImages ?? 0
+      },
+      {
+        id: "videos",
+        labelKey: "home.progressVideos",
+        completed: progress.completedVideos ?? 0,
+        total: progress.quotaVideos ?? 0
+      }
+    ];
+    return rows
+      .filter((row) => row.total > 0)
+      .map((row) => ({
+        ...row,
+        percent: row.total === 0 ? 0 : Math.min(100, Math.round((row.completed / row.total) * 100))
+      }));
+  });
+
   const subscriptionStatus = computed(
     () =>
       homeSnapshot.value?.subscription?.status ||
       servicesSnapshot.value?.activeSubscription?.status ||
       "ACTIVE"
   );
+
+  const deploymentStatus = computed(
+    () =>
+      homeSnapshot.value?.subscription?.deploymentStatus ||
+      servicesSnapshot.value?.activeSubscription?.deploymentStatus ||
+      null
+  );
+
+  const dashboardStatus = computed(() => {
+    if (subscriptionStatus.value !== "ACTIVE") {
+      return "paused";
+    }
+    if (deploymentStatus.value === "PAUSED") {
+      return "paused";
+    }
+    if (deploymentStatus.value === "COMPLETED") {
+      return "done";
+    }
+    return overallStatus.value === "done" ? "done" : "progress";
+  });
 
   const services = computed(() => {
     if (homeSnapshot.value?.services?.length) {
@@ -146,16 +232,16 @@ export function useAppScreen(screenId) {
       return servicesSnapshot.value.packageServices.map((item, index) => ({
         id: item.id,
         index: index + 1,
-        icon: "doc",
+        icon: item.icon || "doc",
         name: item.name,
         nameKey: null,
         desc: item.description,
         descKey: null,
-        trackMode: "status",
-        completedCount: null,
-        totalCount: null,
-        percent: 0,
-        status: "pending"
+        trackMode: item.trackMode || "status",
+        completedCount: item.completedCount ?? null,
+        totalCount: item.totalCount ?? null,
+        percent: item.percent ?? 0,
+        status: item.status || "pending"
       }));
     }
     return [];
@@ -174,7 +260,23 @@ export function useAppScreen(screenId) {
         status: item.status,
         date: item.updatedOn,
         deliverableId: item.deliverableId,
-        reviewable: item.reviewable
+        reviewable: item.reviewable,
+        plannedPublishDate: item.plannedPublishDate,
+        topic: item.topic,
+        ideaFrame: item.ideaFrame,
+        postContent: item.postContent,
+        contentStatus: item.contentStatus,
+        attachmentUrl: item.attachmentUrl,
+        contentScore: item.contentScore,
+        customerComment: item.customerComment,
+        improvementSuggestion: item.improvementSuggestion,
+        completedOn: item.completedOn,
+        mediaName: item.mediaName,
+        mediaType: item.mediaType,
+        previewUrl: item.previewUrl,
+        designScore: item.designScore,
+        designCustomerComment: item.designCustomerComment,
+        designImprovementSuggestion: item.designImprovementSuggestion
       }));
     }
     return [];
@@ -243,6 +345,24 @@ export function useAppScreen(screenId) {
     return [];
   });
 
+  const dailyScheduleItems = computed(() => {
+    const apiTasks = homeSnapshot.value?.schedule?.tasks;
+    if (apiTasks?.length) {
+      const selected = dateKey(selectedDate.value);
+      return apiTasks.map((task) => ({
+        date: formatDisplayDate(task.date || task.taskDate || selected),
+        task: task.task || task.title || "",
+        service: task.service || task.relatedService || "—",
+        status: task.status || "—",
+        note: task.note || task.remark || ""
+      }));
+    }
+    return DAILY_SCHEDULE_ITEMS.map((item) => ({
+      ...item,
+      date: formatDisplayDate(item.date)
+    }));
+  });
+
   const monthLabel = computed(() => {
     if (homeSnapshot.value?.schedule) {
       return {
@@ -265,6 +385,7 @@ export function useAppScreen(screenId) {
     homeLoading.value = true;
     apiError.value = null;
     try {
+      await refreshPackageCatalog();
       const data = await getMobileHome(dateKey(selectedDate.value));
       homeSnapshot.value = data;
       if (data.subscription?.packageCode) {
@@ -291,6 +412,7 @@ export function useAppScreen(screenId) {
     servicesLoading.value = true;
     apiError.value = null;
     try {
+      await refreshPackageCatalog();
       servicesSnapshot.value = await getMobileServices(category);
       const sub = servicesSnapshot.value.activeSubscription;
       if (sub?.packageCode) {
@@ -307,6 +429,18 @@ export function useAppScreen(screenId) {
       servicesSnapshot.value = null;
     } finally {
       servicesLoading.value = false;
+    }
+  }
+
+  async function refreshPackageCatalog() {
+    if (packageCatalog.value.length) {
+      return;
+    }
+    try {
+      const rows = await listAvailablePackages();
+      packageCatalog.value = rows.map(toPackageOption);
+    } catch {
+      packageCatalog.value = [];
     }
   }
 
@@ -348,14 +482,18 @@ export function useAppScreen(screenId) {
     overallPercent,
     overallCompleted,
     overallTotal,
+    progressBreakdown,
     overallStatus,
     subscriptionStatus,
+    deploymentStatus,
+    dashboardStatus,
     services,
     implementationTasks,
     notifications,
     accountMenus,
     weekDays,
     tasksForSelectedDay,
+    dailyScheduleItems,
     monthLabel,
     progressRing,
     selectDay,

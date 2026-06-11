@@ -1,0 +1,296 @@
+{
+  "packages": [
+    {
+      "code": "BASIC_15",
+      "label": "15 bài cơ bản",
+      "tier": "BASIC",
+      "quotaPosts": 15,
+      "quotaImages": 15,
+      "quotaVideos": 0,
+      "description": "Gói cơ bản cho nội dung và thiết kế hình ảnh.",
+      "services": [
+        "Viết bài",
+        "Thiết kế hình ảnh"
+      ],
+      "price": "Liên hệ"
+    },
+    {
+      "code": "PRO_15",
+      "label": "15 bài cao cấp",
+      "tier": "PRO",
+      "quotaPosts": 15,
+      "quotaImages": 10,
+      "quotaVideos": 5,
+      "description": "Thêm quản trị fanpage, quảng cáo và báo cáo.",
+      "services": [
+        "Sáng tạo nội dung",
+        "Design / Video",
+        "Quảng cáo Facebook",
+        "Báo cáo hiệu suất"
+      ],
+      "price": "Liên hệ"
+    },
+    {
+      "code": "BASIC_30",
+      "label": "30 bài cơ bản",
+      "tier": "BASIC",
+      "quotaPosts": 30,
+      "quotaImages": 30,
+      "quotaVideos": 0,
+      "description": "Tăng sản lượng bài viết và ảnh thiết kế.",
+      "services": [
+        "Viết bài",
+        "Thiết kế hình ảnh"
+      ],
+      "price": "Liên hệ"
+    },
+    {
+      "code": "PRO_30",
+      "label": "30 bài cao cấp",
+      "tier": "PRO",
+      "quotaPosts": 30,
+      "quotaImages": 20,
+      "quotaVideos": 10,
+      "description": "Gói cao cấp cho kế hoạch nội dung dày và theo dõi đầy đủ.",
+      "services": [
+        "Quản trị Fanpage",
+        "Sáng tạo nội dung",
+        "Design / Video",
+        "Quảng cáo",
+        "Báo cáo"
+      ],
+      "price": "Liên hệ"
+    }
+  ],
+  "account": {
+    "userName": "customer",
+    "fullName": "Nguyễn Minh Anh",
+    "phone": "0901 234 567",
+    "email": "minhanh@example.com",
+    "businessName": "Công ty Minh Anh Beauty",
+    "fanpageName": "Minh Anh Beauty Spa",
+    "status": "ACTIVE",
+    "avatarUrl": "",
+    "subscription": {
+      "packageCode": "BASIC_15",
+      "displayTitle": "15 bài cơ bản",
+      "tier": "BASIC",
+      "startDate": "2026-06-01",
+      "endDate": "2026-06-30",
+      "status": "ACTIVE",
+      "deploymentStatus": "IN_PROGRESS"
+    }
+  },
+  "home": {
+    "subscription": {
+      "packageCode": "BASIC_15",
+      "displayTitle": "15 bài cơ bản",
+      "tier": "BASIC",
+      "startDate": "2026-06-01",
+      "endDate": "2026-06-30",
+      "status": "ACTIVE",
+      "deploymentStatus": "IN_PROGRESS"
+    },
+    "progress": {
+      "overallPercent": 68,
+      "completedItems": 21,
+      "totalItems": 31,
+      "completedPosts": 10,
+      "quotaPosts": 15,
+      "completedImages": 11,
+      "quotaImages": 15,
+      "completedVideos": 0,
+      "quotaVideos": 0,
+      "status": "progress"
+    },
+    "services": [
+      {
+        "id": "posts",
+        "name": "Viết bài",
+        "icon": "edit",
+        "trackMode": "quantity",
+        "completedCount": 10,
+        "totalCount": 15,
+        "percent": 67,
+        "status": "progress"
+      },
+      {
+        "id": "design",
+        "name": "Thiết kế hình ảnh",
+        "icon": "image",
+        "trackMode": "quantity",
+        "completedCount": 11,
+        "totalCount": 15,
+        "percent": 73,
+        "status": "progress"
+      }
+    ],
+    "schedule": {
+      "month": 6,
+      "year": 2026,
+      "weekDays": [],
+      "tasks": []
+    }
+  },
+  "services": {
+    "activeSubscription": {
+      "packageCode": "BASIC_15",
+      "displayTitle": "15 bài cơ bản",
+      "tier": "BASIC",
+      "startDate": "2026-06-01",
+      "endDate": "2026-06-30",
+      "status": "ACTIVE"
+    },
+    "packageServices": [
+      {
+        "id": "posts",
+        "name": "Viết bài",
+        "description": "Viết bài theo kế hoạch nội dung.",
+        "icon": "edit",
+        "trackMode": "quantity",
+        "completedCount": 10,
+        "totalCount": 15,
+        "percent": 67,
+        "status": "progress"
+      },
+      {
+        "id": "design",
+        "name": "Thiết kế hình ảnh",
+        "description": "Thiết kế hình ảnh cho bài đăng.",
+        "icon": "image",
+        "trackMode": "quantity",
+        "completedCount": 11,
+        "totalCount": 15,
+        "percent": 73,
+        "status": "progress"
+      }
+    ],
+    "implementationItems": [
+      {
+        "id": "content-12",
+        "code": "P12",
+        "title": "Bài viết số 12",
+        "category": "content",
+        "currentCount": 1,
+        "targetCount": 1,
+        "status": "approved",
+        "updatedOn": "2026-06-04",
+        "deliverableId": "mock-deliverable-12",
+        "reviewable": true,
+        "plannedPublishDate": "2026-06-08",
+        "topic": "Chăm sóc da mùa hè",
+        "ideaFrame": "Mở bài bằng pain point, kết thúc bằng CTA đặt lịch.",
+        "postContent": "Mùa hè là thời điểm da dễ mất nước...",
+        "contentStatus": "completed",
+        "attachmentUrl": "",
+        "contentScore": 9,
+        "customerComment": "",
+        "improvementSuggestion": ""
+      },
+      {
+        "id": "design-12",
+        "code": "D12",
+        "title": "Thiết kế ảnh bài 12",
+        "category": "content",
+        "currentCount": 1,
+        "targetCount": 1,
+        "status": "waiting_feedback",
+        "updatedOn": "2026-06-04",
+        "deliverableId": "mock-deliverable-12",
+        "reviewable": true,
+        "mediaName": "Ảnh bài viết số 12",
+        "mediaType": "image",
+        "previewUrl": "https://images.unsplash.com/photo-1570172619644-dfdcef6e0e0c?w=600&h=360&fit=crop",
+        "completedOn": "2026-06-04",
+        "contentStatus": "waiting_customer",
+        "designScore": 9,
+        "designCustomerComment": "",
+        "designImprovementSuggestion": ""
+      }
+    ]
+  },
+  "dailyScheduleItems": [
+    {
+      "date": "2026-06-05",
+      "task": "Hoàn thiện bài viết số 5",
+      "service": "Viết bài",
+      "status": "Đang làm",
+      "note": ""
+    },
+    {
+      "date": "2026-06-06",
+      "task": "Thiết kế ảnh cho bài viết số 5",
+      "service": "Thiết kế hình ảnh",
+      "status": "Chờ duyệt",
+      "note": ""
+    }
+  ],
+  "notifications": [
+    {
+      "id": "n1",
+      "title": "Bài viết số 12 đã được hoàn thiện",
+      "body": "Đội ngũ đã hoàn thiện bài viết số 12. Anh/chị vui lòng kiểm tra và phản hồi nếu cần chỉnh sửa.",
+      "createdAt": "2026-06-04T09:30:00+07:00",
+      "type": "CONTENT_DONE",
+      "read": false
+    },
+    {
+      "id": "n2",
+      "title": "Ảnh cho bài viết số 12 đã hoàn thiện",
+      "body": "File thiết kế ảnh đã sẵn sàng. Anh/chị vui lòng xem trước và phản hồi nếu cần điều chỉnh.",
+      "createdAt": "2026-06-04T14:15:00+07:00",
+      "type": "MEDIA_DONE",
+      "read": false
+    },
+    {
+      "id": "n3",
+      "title": "Cần duyệt nội dung bài viết số 13",
+      "body": "Nội dung bài viết số 13 đang chờ anh/chị duyệt trước khi chuyển sang bước thiết kế.",
+      "createdAt": "2026-06-05T08:45:00+07:00",
+      "type": "APPROVAL_REQUIRED",
+      "read": false
+    },
+    {
+      "id": "n4",
+      "title": "Nhắc kiểm tra tiến độ gói dịch vụ",
+      "body": "Tiến độ triển khai đã được cập nhật. Anh/chị vui lòng kiểm tra các hạng mục đã hoàn thành.",
+      "createdAt": "2026-06-07T15:00:00+07:00",
+      "type": "PROGRESS_REMINDER",
+      "read": true
+    }
+  ],
+  "vouchers": [
+    {
+      "id": "voucher-birthday",
+      "title": "Ưu đãi sinh nhật khách hàng",
+      "code": "BIRTHDAY20",
+      "value": "Giảm 20% khi nâng cấp gói",
+      "condition": "Áp dụng cho yêu cầu nâng cấp trong thời hạn voucher.",
+      "expiresAt": "2026-06-30",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "voucher-renewal",
+      "title": "Ưu đãi gia hạn dịch vụ",
+      "code": "RENEW10",
+      "value": "Giảm 10% khi gia hạn dịch vụ",
+      "condition": "Áp dụng khi gia hạn trước ngày hết hạn.",
+      "expiresAt": "2026-07-15",
+      "status": "ACTIVE"
+    }
+  ],
+  "reviews": {
+    "mock-deliverable-12": {
+      "deliverable": {
+        "id": "mock-deliverable-12",
+        "postNumber": "12",
+        "taskTitle": "Bài viết số 12",
+        "companyResponseStatus": "pending",
+        "thumbnailUrl": "https://images.unsplash.com/photo-1570172619644-dfdcef6e0e0c?w=160&h=160&fit=crop",
+        "teamContentScore": 9,
+        "teamDesignScore": 9
+      },
+      "review": null
+    }
+  }
+}

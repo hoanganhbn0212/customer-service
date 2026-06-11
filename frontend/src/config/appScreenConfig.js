@@ -9,7 +9,7 @@
 
 /** @typedef {'BASIC_15'|'PRO_15'|'BASIC_30'|'PRO_30'} PackageCode */
 /** @typedef {'BASIC'|'PRO'} PackageTier */
-/** @typedef {'home'|'services'|'notifications'|'account'} ScreenId */
+/** @typedef {'home'|'services'|'schedule'|'notifications'|'account'} ScreenId */
 
 export const PACKAGE_CODES = ["BASIC_15", "PRO_15", "BASIC_30", "PRO_30"];
 
@@ -124,13 +124,18 @@ export const SCREENS = {
     id: "home",
     titleKey: "nav.overview",
     showBell: true,
-    blocks: ["packageCard", "overallProgress", "serviceList", "schedule"]
+    blocks: ["packageCard", "overallProgress", "serviceList"]
   },
   services: {
     id: "services",
     titleKey: "nav.services",
     showBell: true,
     listMode: "implementation"
+  },
+  schedule: {
+    id: "schedule",
+    titleKey: "nav.schedule",
+    subtitleKey: "schedule.subtitle"
   },
   notifications: {
     id: "notifications",
@@ -148,33 +153,73 @@ export const SCREENS = {
 export const NOTIFICATION_ITEMS = [
   {
     id: "n1",
-    titleKey: "notifications.items.contentReady",
-    bodyKey: "notifications.items.contentReadyBody",
-    time: "10:30",
+    title: "Bài viết số 12 đã được hoàn thiện",
+    body: "Đội ngũ đã hoàn thiện bài viết số 12. Anh/chị vui lòng kiểm tra và phản hồi nếu cần chỉnh sửa.",
+    createdAt: "2026-06-04T09:30:00+07:00",
+    type: "CONTENT_DONE",
     read: false,
     tiers: ["BASIC", "PRO"]
   },
   {
     id: "n2",
-    titleKey: "notifications.items.ads",
-    bodyKey: "notifications.items.adsBody",
-    time: "09:15",
+    title: "Ảnh cho bài viết số 12 đã hoàn thiện",
+    body: "File thiết kế ảnh đã sẵn sàng. Anh/chị vui lòng xem trước và phản hồi nếu cần điều chỉnh.",
+    createdAt: "2026-06-04T14:15:00+07:00",
+    type: "MEDIA_DONE",
     read: false,
-    tiers: ["PRO"]
+    tiers: ["BASIC", "PRO"]
   },
   {
     id: "n3",
-    titleKey: "notifications.items.report",
-    bodyKey: "notifications.items.reportBody",
-    time: "Hôm qua",
-    read: true,
-    tiers: ["PRO"]
+    title: "Cần duyệt nội dung bài viết số 13",
+    body: "Nội dung bài viết số 13 đang chờ anh/chị duyệt trước khi chuyển sang bước thiết kế.",
+    createdAt: "2026-06-05T08:45:00+07:00",
+    type: "APPROVAL_REQUIRED",
+    read: false,
+    tiers: ["BASIC", "PRO"]
   },
   {
     id: "n4",
-    titleKey: "notifications.items.post",
-    bodyKey: "notifications.items.postBody",
-    time: "Hôm qua",
+    title: "Phản hồi về góp ý của anh/chị",
+    body: "Đội ngũ đã tiếp nhận feedback và cập nhật lại nội dung theo góp ý của anh/chị.",
+    createdAt: "2026-06-05T16:20:00+07:00",
+    type: "FEEDBACK_REPLY",
+    read: true,
+    tiers: ["BASIC", "PRO"]
+  },
+  {
+    id: "n5",
+    title: "Ưu đãi nâng cấp gói dịch vụ",
+    body: "Khách hàng đang sử dụng gói hiện tại được ưu đãi khi nâng cấp lên gói Pro trong tháng này.",
+    createdAt: "2026-06-06T10:00:00+07:00",
+    type: "OFFER",
+    read: true,
+    tiers: ["BASIC", "PRO"]
+  },
+  {
+    id: "n6",
+    title: "Khuyến mại thiết kế thêm ảnh",
+    body: "Đăng ký thêm hạng mục thiết kế trong tuần này để nhận mức giá khuyến mại.",
+    createdAt: "2026-06-06T11:30:00+07:00",
+    type: "PROMOTION",
+    read: true,
+    tiers: ["BASIC", "PRO"]
+  },
+  {
+    id: "n7",
+    title: "Gợi ý nhắc lịch duyệt bài",
+    body: "Anh/chị có thể kiểm tra nội dung đang chờ duyệt để kịp tiến độ đăng bài.",
+    createdAt: "2026-06-07T09:00:00+07:00",
+    type: "SCHEDULE_REMINDER",
+    read: false,
+    tiers: ["BASIC", "PRO"]
+  },
+  {
+    id: "n8",
+    title: "Nhắc kiểm tra tiến độ gói dịch vụ",
+    body: "Tiến độ triển khai đã được cập nhật. Anh/chị vui lòng kiểm tra các hạng mục đã hoàn thành.",
+    createdAt: "2026-06-07T15:00:00+07:00",
+    type: "PROGRESS_REMINDER",
     read: true,
     tiers: ["BASIC", "PRO"]
   }
@@ -249,6 +294,24 @@ export const IMPLEMENTATION_TASKS = [
 ];
 
 export const SERVICE_FILTER_IDS = ["all", "content", "ads", "report"];
+
+/** Demo: lịch trình giai đoạn 1, chỉ hiển thị theo từng ngày. */
+export const DAILY_SCHEDULE_ITEMS = [
+  {
+    date: "2026-06-05",
+    task: "Hoàn thiện bài viết số 5",
+    service: "Viết bài",
+    status: "Đang làm",
+    note: ""
+  },
+  {
+    date: "2026-06-06",
+    task: "Thiết kế ảnh cho bài viết số 5",
+    service: "Thiết kế hình ảnh",
+    status: "Chờ duyệt",
+    note: ""
+  }
+];
 
 /** Demo: màn đánh giá khi khách xem bài / hình (theo task id) */
 export const REVIEW_BY_TASK = {

@@ -15,6 +15,10 @@ UPDATE service_definitions SET progress_mode = 'QUANTITY', quota_key = 'POSTS' W
 UPDATE service_definitions SET progress_mode = 'QUANTITY', quota_key = 'IMAGES' WHERE id = 'design';
 UPDATE service_definitions SET progress_mode = 'QUANTITY', quota_key = 'VIDEOS' WHERE id = 'video';
 
+-- Mobile subscriptions: deployment status was added after early schemas.
+ALTER TABLE user_subscriptions ADD COLUMN IF NOT EXISTS deployment_status VARCHAR(20) NOT NULL DEFAULT 'IN_PROGRESS';
+UPDATE user_subscriptions SET deployment_status = 'IN_PROGRESS' WHERE deployment_status IS NULL;
+
 -- Default admin: admin / password
 INSERT INTO app_users (id, username, password_hash, enabled, role, created_at, updated_at)
 VALUES (

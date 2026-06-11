@@ -25,6 +25,9 @@ public class ContentReviewEntity {
     @Column(name = "user_id", nullable = false, length = 100)
     private String userId;
 
+    @Column(name = "review_type", nullable = false, length = 20)
+    private String reviewType = "CONTENT";
+
     @Column(name = "quality_score")
     private Integer qualityScore;
 
@@ -74,6 +77,14 @@ public class ContentReviewEntity {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getReviewType() {
+        return reviewType;
+    }
+
+    public void setReviewType(String reviewType) {
+        this.reviewType = reviewType;
     }
 
     public Integer getQualityScore() {

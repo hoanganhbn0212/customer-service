@@ -5,9 +5,12 @@ import { ApiError, AdminService } from "../api";
 import AppShell from "../components/layout/AppShell.vue";
 import {
   assignUserSubscription,
+  createAdminPackage,
+  deactivateAdminPackage,
   listAdminPackages,
   listPackageUpgradeRequests,
-  reviewPackageUpgradeRequest
+  reviewPackageUpgradeRequest,
+  updateAdminPackage
 } from "../api/adminApi";
 
 const { t } = useI18n();
@@ -30,6 +33,16 @@ const assignForm = ref({
   endDate: ""
 });
 
+const packageForm = ref({
+  code: "",
+  tier: "BASIC",
+  label: "",
+  quotaPosts: 15,
+  quotaImages: 15,
+  quotaVideos: 0,
+  sortOrder: 0
+});
+const editingPackageCode = ref("");
 const reviewNote = ref("");
 
 const pendingCount = computed(
@@ -42,7 +55,7 @@ const packageLabel = (code) => {
 };
 
 const formatDateTime = (iso) => {
-  if (!iso) return "—";
+  if (!iso) return "-";
   return new Date(iso).toLocaleString("vi-VN");
 };
 
@@ -52,7 +65,7 @@ const loadUsers = async () => {
 
 const loadPackages = async () => {
   packages.value = await listAdminPackages();
-  if (packages.value.length && !assignForm.value.packageCode) {
+  if (packages.value.length && !packages.value.some((pkg) => pkg.code === assignForm.value.packageCode)) {
     assignForm.value.packageCode = packages.value[0].code;
   }
 };
@@ -93,6 +106,81 @@ const submitAssign = async () => {
     assignForm.value.displayTitle = "";
     assignForm.value.startDate = "";
     assignForm.value.endDate = "";
+  } catch (e) {
+    error.value = e instanceof ApiError ? e.body?.message || e.message : e.body?.code || String(e);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const resetPackageForm = () => {
+  editingPackageCode.value = "";
+  packageForm.value = {
+    code: "",
+    tier: "BASIC",
+    label: "",
+    quotaPosts: 15,
+    quotaImages: 15,
+    quotaVideos: 0,
+    sortOrder: packages.value.length + 1
+  };
+};
+
+const editPackage = (pkg) => {
+  editingPackageCode.value = pkg.code;
+  packageForm.value = {
+    code: pkg.code,
+    tier: pkg.tier,
+    label: pkg.label,
+    quotaPosts: pkg.quotaPosts,
+    quotaImages: pkg.quotaImages,
+    quotaVideos: pkg.quotaVideos,
+    sortOrder: packages.value.findIndex((item) => item.code === pkg.code) + 1
+  };
+};
+
+const submitPackage = async () => {
+  loading.value = true;
+  error.value = "";
+  success.value = "";
+  const body = {
+    code: packageForm.value.code.trim(),
+    tier: packageForm.value.tier,
+    label: packageForm.value.label.trim(),
+    quotaPosts: Number(packageForm.value.quotaPosts || 0),
+    quotaImages: Number(packageForm.value.quotaImages || 0),
+    quotaVideos: Number(packageForm.value.quotaVideos || 0),
+    sortOrder: Number(packageForm.value.sortOrder || 0),
+    active: true
+  };
+  try {
+    if (editingPackageCode.value) {
+      await updateAdminPackage(editingPackageCode.value, body);
+      success.value = t("adminSubs.packageUpdateSuccess");
+    } else {
+      await createAdminPackage(body);
+      success.value = t("adminSubs.packageCreateSuccess");
+    }
+    await loadPackages();
+    resetPackageForm();
+  } catch (e) {
+    error.value = e instanceof ApiError ? e.body?.message || e.message : e.body?.code || String(e);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const deactivatePackage = async (pkg) => {
+  loading.value = true;
+  error.value = "";
+  success.value = "";
+  try {
+    await deactivateAdminPackage(pkg.code);
+    success.value = t("adminSubs.packageDeactivateSuccess");
+    await loadPackages();
+    if (editingPackageCode.value === pkg.code) {
+      resetPackageForm();
+    }
   } catch (e) {
     error.value = e instanceof ApiError ? e.body?.message || e.message : e.body?.code || String(e);
   } finally {
@@ -158,6 +246,14 @@ onMounted(loadAll);
           {{ t("adminSubs.tabUpgrades") }}
           <span v-if="pendingCount" class="badge-pending">{{ pendingCount }}</span>
         </button>
+        <button
+          type="button"
+          class="tab"
+          :class="{ active: activeTab === 'packages' }"
+          @click="activeTab = 'packages'"
+        >
+          {{ t("adminSubs.tabPackages") }}
+        </button>
       </div>
 
       <template v-if="activeTab === 'assign'">
@@ -175,7 +271,7 @@ onMounted(loadAll);
             <label class="field-label">{{ t("adminSubs.selectPackage") }}</label>
             <select v-model="assignForm.packageCode" required :disabled="loading">
               <option v-for="pkg in packages" :key="pkg.code" :value="pkg.code">
-                {{ pkg.label }} — {{ pkg.tier }}
+                {{ pkg.label }} - {{ pkg.tier }}
               </option>
             </select>
 
@@ -188,11 +284,11 @@ onMounted(loadAll);
             />
 
             <div class="date-row">
-              <div>
+              <div class="date-field">
                 <label class="field-label">{{ t("adminSubs.startDate") }}</label>
                 <input v-model="assignForm.startDate" type="date" :disabled="loading" />
               </div>
-              <div>
+              <div class="date-field">
                 <label class="field-label">{{ t("adminSubs.endDate") }}</label>
                 <input v-model="assignForm.endDate" type="date" :disabled="loading" />
               </div>
@@ -205,7 +301,7 @@ onMounted(loadAll);
         </section>
       </template>
 
-      <template v-else>
+      <template v-else-if="activeTab === 'upgrades'">
         <section class="section">
           <div class="section-head">
             <h2>{{ t("adminSubs.upgradesTitle") }}</h2>
@@ -250,7 +346,7 @@ onMounted(loadAll);
                 <td>{{ row.userName }}</td>
                 <td>{{ packageLabel(row.fromPackageCode) }}</td>
                 <td>{{ packageLabel(row.toPackageCode) }}</td>
-                <td class="note-cell">{{ row.note || "—" }}</td>
+                <td class="note-cell">{{ row.note || "-" }}</td>
                 <td>
                   <span class="status-badge" :class="row.status.toLowerCase()">{{ row.status }}</span>
                 </td>
@@ -275,13 +371,108 @@ onMounted(loadAll);
                     </button>
                   </template>
                   <span v-else class="reviewed-meta">
-                    {{ row.adminNote || "—" }}
+                    {{ row.adminNote || "-" }}
                     <small v-if="row.reviewedAt">{{ formatDateTime(row.reviewedAt) }}</small>
                   </span>
                 </td>
               </tr>
             </tbody>
           </table>
+        </section>
+      </template>
+
+      <template v-else>
+        <section class="section package-admin-grid">
+          <form class="assign-form package-form" @submit.prevent="submitPackage">
+            <h2>
+              {{
+                editingPackageCode
+                  ? t("adminSubs.packageEditTitle", { code: editingPackageCode })
+                  : t("adminSubs.packageCreateTitle")
+              }}
+            </h2>
+
+            <label class="field-label">{{ t("adminSubs.packageCode") }}</label>
+            <input
+              v-model="packageForm.code"
+              type="text"
+              :disabled="loading || Boolean(editingPackageCode)"
+              required
+            />
+
+            <label class="field-label">{{ t("adminSubs.packageLabel") }}</label>
+            <input v-model="packageForm.label" type="text" :disabled="loading" required />
+
+            <label class="field-label">{{ t("adminSubs.packageTier") }}</label>
+            <select v-model="packageForm.tier" :disabled="loading">
+              <option value="BASIC">BASIC</option>
+              <option value="PRO">PRO</option>
+            </select>
+
+            <div class="quota-row">
+              <div>
+                <label class="field-label">{{ t("adminSubs.quotaPosts") }}</label>
+                <input v-model.number="packageForm.quotaPosts" type="number" min="0" :disabled="loading" />
+              </div>
+              <div>
+                <label class="field-label">{{ t("adminSubs.quotaImages") }}</label>
+                <input v-model.number="packageForm.quotaImages" type="number" min="0" :disabled="loading" />
+              </div>
+              <div>
+                <label class="field-label">{{ t("adminSubs.quotaVideos") }}</label>
+                <input v-model.number="packageForm.quotaVideos" type="number" min="0" :disabled="loading" />
+              </div>
+            </div>
+
+            <label class="field-label">{{ t("adminSubs.sortOrder") }}</label>
+            <input v-model.number="packageForm.sortOrder" type="number" :disabled="loading" />
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" :disabled="loading">
+                {{ editingPackageCode ? t("adminSubs.packageUpdate") : t("adminSubs.packageCreate") }}
+              </button>
+              <button type="button" class="btn-outline" :disabled="loading" @click="resetPackageForm">
+                {{ t("adminSubs.packageReset") }}
+              </button>
+            </div>
+          </form>
+
+          <div class="package-list-panel">
+            <div class="section-head">
+              <h2>{{ t("adminSubs.packageListTitle") }}</h2>
+              <button type="button" class="btn-outline" :disabled="loading" @click="loadPackages">
+                {{ t("admin.refresh") }}
+              </button>
+            </div>
+            <p v-if="!packages.length" class="empty">{{ t("adminSubs.packageEmpty") }}</p>
+            <table v-else class="data-table package-table">
+              <thead>
+                <tr>
+                  <th>{{ t("adminSubs.packageCode") }}</th>
+                  <th>{{ t("adminSubs.packageLabel") }}</th>
+                  <th>{{ t("adminSubs.packageTier") }}</th>
+                  <th>{{ t("adminSubs.packageQuota") }}</th>
+                  <th>{{ t("admin.actions") }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="pkg in packages" :key="pkg.code">
+                  <td>{{ pkg.code }}</td>
+                  <td>{{ pkg.label }}</td>
+                  <td>{{ pkg.tier }}</td>
+                  <td>{{ pkg.quotaPosts }} / {{ pkg.quotaImages }} / {{ pkg.quotaVideos }}</td>
+                  <td>
+                    <button type="button" class="btn-outline small" :disabled="loading" @click="editPackage(pkg)">
+                      {{ t("adminSubs.packageEdit") }}
+                    </button>
+                    <button type="button" class="btn-reject" :disabled="loading" @click="deactivatePackage(pkg)">
+                      {{ t("adminSubs.packageDeactivate") }}
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
       </template>
 
@@ -309,6 +500,7 @@ onMounted(loadAll);
 
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 24px;
   border-bottom: 2px solid #e8ecef;
@@ -374,6 +566,7 @@ onMounted(loadAll);
 
 .filter-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
@@ -395,6 +588,9 @@ onMounted(loadAll);
 
 input,
 select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 42px;
   padding: 10px 12px;
   border: 1px solid #dee2e6;
   border-radius: 8px;
@@ -404,11 +600,51 @@ select {
 
 .date-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
   gap: 12px;
 }
 
+.date-field {
+  min-width: 0;
+}
+
+.quota-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.package-admin-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.package-form {
+  background: #f8fafc;
+  border: 1px solid #e8ecef;
+  border-radius: 12px;
+  padding: 18px;
+}
+
+.package-list-panel {
+  min-width: 0;
+}
+
+.package-table td:last-child {
+  white-space: nowrap;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .review-note-input {
+  width: 100%;
   max-width: 480px;
   margin-bottom: 16px;
 }
@@ -433,10 +669,27 @@ select {
   cursor: pointer;
 }
 
+.btn-outline.small {
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  margin-right: 6px;
+}
+
 .data-table {
+  display: block;
   width: 100%;
+  overflow-x: auto;
   border-collapse: collapse;
   font-size: 0.88rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table thead,
+.data-table tbody {
+  min-width: 760px;
+  display: table;
+  width: 100%;
+  table-layout: auto;
 }
 
 .data-table th,
@@ -529,5 +782,32 @@ select {
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 900px) {
+  .date-row,
+  .package-admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quota-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .card {
+    padding: 16px;
+  }
+
+  .tab {
+    flex: 1 1 140px;
+  }
+
+  .filter-row,
+  .filter-row select,
+  .filter-row button {
+    width: 100%;
+  }
 }
 </style>

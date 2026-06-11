@@ -8,13 +8,11 @@ import type { UpdateCustomerRequest } from '../models/UpdateCustomerRequest';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-/**
- * CRUD khách hàng mẫu (demo ban đầu) — không thuộc luồng app Layla/mobile.
- * @usedBy views/DashboardView.vue (/customers)
- */
 export class CustomerService {
     /**
-     * GET /api/customers — Liệt kê khách hàng demo.
+     * List all customers
+     * @returns Customer Customer list
+     * @throws ApiError
      */
     public static listCustomers(): CancelablePromise<Array<Customer>> {
         return __request(OpenAPI, {
@@ -23,7 +21,10 @@ export class CustomerService {
         });
     }
     /**
-     * POST /api/customers — Tạo khách hàng demo (name, email).
+     * Create a customer
+     * @param requestBody
+     * @returns Customer Created
+     * @throws ApiError
      */
     public static createCustomer(
         requestBody: CreateCustomerRequest,
@@ -36,7 +37,10 @@ export class CustomerService {
         });
     }
     /**
-     * GET /api/customers/{id} — Chi tiết một khách (chưa gọi từ UI hiện tại).
+     * Get customer by id
+     * @param id
+     * @returns Customer Customer found
+     * @throws ApiError
      */
     public static getCustomerById(
         id: number,
@@ -53,7 +57,11 @@ export class CustomerService {
         });
     }
     /**
-     * PUT /api/customers/{id} — Cập nhật khách (chưa gọi từ UI hiện tại).
+     * Update customer
+     * @param id
+     * @param requestBody
+     * @returns Customer Updated
+     * @throws ApiError
      */
     public static updateCustomer(
         id: number,
@@ -73,7 +81,10 @@ export class CustomerService {
         });
     }
     /**
-     * DELETE /api/customers/{id} — Xóa khách demo.
+     * Delete customer
+     * @param id
+     * @returns void
+     * @throws ApiError
      */
     public static deleteCustomer(
         id: number,

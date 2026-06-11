@@ -32,7 +32,8 @@
     "overview": "Overview",
     "services": "Services",
     "notifications": "Notifications",
-    "account": "Account"
+    "account": "Account",
+    "schedule": "Schedule"
   },
   "account": {
     "logout": "Sign out",
@@ -51,7 +52,38 @@
     "upgradeSubmitted": "Request sent — status: {status}",
     "vouchersTitle": "My vouchers",
     "vouchersEmpty": "No vouchers yet.",
-    "voucherExpires": "Expires: {date}"
+    "voucherExpires": "Expires: {date}",
+    "secureProfile": "Secure profile",
+    "businessName": "Business name",
+    "fanpageName": "Managed fanpage",
+    "packageName": "Current service package",
+    "packageStart": "Package start date",
+    "packageEnd": "Package expiry date",
+    "accountStatus": "Account status",
+    "statusActive": "Active",
+    "statusInactive": "Inactive",
+    "statusExpired": "Expired",
+    "upgradeIntro": "Current package: {current}. You can choose a higher package below.",
+    "defaultBenefits": "Expanded benefits and higher content execution capacity.",
+    "packageMediaImages": "{images} images",
+    "packageMediaWithVideo": "{images} images, {videos} videos",
+    "contactPrice": "Contact us",
+    "postsCount": "{count} posts",
+    "upgradeFormTitle": "Send upgrade request",
+    "upgradeMessage": "Message",
+    "upgradeMessagePlaceholder": "Enter your request or additional notes...",
+    "sendRequest": "Send request",
+    "requestSent": "Sent",
+    "saveLocalHint": "Temporarily updated in the UI. Backend has not saved this yet.",
+    "voucherValue": "Value",
+    "voucherCondition": "Usage condition",
+    "voucherExpiry": "Expiry date",
+    "noCondition": "No condition",
+    "voucherStatus": {
+      "active": "Active",
+      "used": "Used",
+      "expired": "Expired"
+    }
   },
   "home": {
     "overview": "Overview",
@@ -61,11 +93,24 @@
     "packageBasic30": "Basic Fanpage Care 30",
     "tierPro": "Pro",
     "tierBasic": "Basic",
+    "packageTierPremium": "premium",
+    "packageTierBasic": "basic",
+    "packageTypeLabel": "Package type",
+    "packageType": "{posts}-post {tier}",
+    "packagePosts": "Posts",
+    "packageMedia": "Images / video",
+    "packageLifecycle": "Validity",
+    "mediaQuotaImages": "{images} images",
+    "mediaQuotaWithVideo": "{images} images, {videos} videos",
     "overallProgress": "Overall progress",
     "completionLabel": "Completion progress",
     "progressFormula": "{completed}/{total} completed items",
+    "progressPosts": "Posts",
+    "progressImages": "Designed images",
+    "progressVideos": "Video",
     "statusDone": "Completed",
     "statusProgress": "In progress",
+    "statusPaused": "Paused",
     "statusPending": "Not started",
     "statusOnlyHint": "Status-based service",
     "pkgActive": "Active",
@@ -103,6 +148,8 @@
     "empty": "No services in the current package.",
     "emptyTasks": "No items match this filter.",
     "filterLabel": "Filter items",
+    "progress": "Progress",
+    "viewDetail": "View details",
     "contentDetailHint": "Detailed content (idea board / implementation table) will open in a later step.",
     "packageInfoIntro": "Items included in your current service package:",
     "activeTitle": {
@@ -110,8 +157,8 @@
       "basic": "Basic content package"
     },
     "tab": {
-      "implementation": "Implementation list",
-      "packageInfo": "Package info"
+      "implementation": "Implementation details",
+      "packageInfo": "Service list"
     },
     "filter": {
       "all": "All",
@@ -145,6 +192,48 @@
     "extra": {
       "cover": "Cover / Avatar",
       "like": "Like / Follow"
+    },
+    "proList": {
+      "content": "Content",
+      "media": "Design / Video"
+    },
+    "contentSheet": {
+      "title": "Content management sheet",
+      "eyebrow": "Service detail",
+      "back": "Back",
+      "no": "No.",
+      "publishDate": "Planned publish date",
+      "topic": "Topic",
+      "ideaFrame": "Idea frame",
+      "postContent": "Post content",
+      "status": "Status",
+      "attachment": "Attachment",
+      "contentScore": "Content score",
+      "customerComment": "Customer comment",
+      "improvement": "Improvement suggestion",
+      "openFile": "Open file"
+    },
+    "contentStatus": {
+      "not_started": "Not started",
+      "doing": "Doing",
+      "waiting_customer": "Waiting for approval",
+      "needs_revision": "Needs revision",
+      "completed": "Completed",
+      "published": "Published"
+    },
+    "mediaSheet": {
+      "title": "Design / video list",
+      "eyebrow": "Design / Video detail",
+      "completedDate": "Completed date",
+      "name": "Design / video name",
+      "type": "Type",
+      "preview": "Preview link",
+      "designScore": "Design / Video score",
+      "openPreview": "Open preview"
+    },
+    "mediaType": {
+      "image": "Image",
+      "video": "Video"
     }
   },
   "review": {
@@ -172,10 +261,15 @@
       "seo": "Natural keywords and solid headings. The intro could be shorter.",
       "writePosts": "On-brand tone. A few sentences could be more concise.",
       "designImages": "Colors match the fanpage. Type is readable on mobile."
-    }
+    },
+    "openForm": "Review",
+    "close": "Close",
+    "scoreDropdown": "Review score",
+    "contentTitle": "Content review",
+    "designVideoTitle": "Design / Video review"
   },
   "notifications": {
-    "subtitle": "Updates for your service package",
+    "subtitle": "Company responses and updates for customers",
     "empty": "No notifications.",
     "typeFeedback": "Feedback",
     "typePromo": "Promotion",
@@ -189,6 +283,24 @@
       "reportBody": "Fanpage performance report has been sent.",
       "post": "New post",
       "postBody": "Today's post has been scheduled."
+    },
+    "sentAt": "Sent time",
+    "typeLabel": "Notification type",
+    "status": {
+      "read": "Read",
+      "unread": "Unread"
+    },
+    "type": {
+      "FEEDBACK_REPLY": "Feedback reply",
+      "CONTENT_DONE": "Completed post",
+      "MEDIA_DONE": "Completed image/video",
+      "APPROVAL_REQUIRED": "Content approval required",
+      "OFFER": "Offer program",
+      "PROMOTION": "Promotion",
+      "SCHEDULE_REMINDER": "Schedule reminder",
+      "PROGRESS_REMINDER": "Progress check reminder",
+      "SCHEDULE": "Schedule",
+      "INFO": "Information"
     }
   },
   "theme": {
@@ -235,6 +347,7 @@
     "subtitle": "Assign packages to customers and review upgrade requests.",
     "tabAssign": "Assign package",
     "tabUpgrades": "Upgrade requests",
+    "tabPackages": "Package catalog",
     "assignTitle": "Assign package to user",
     "selectUser": "Select user",
     "selectUserPlaceholder": "— Select user —",
@@ -261,7 +374,27 @@
     "statusPending": "Pending",
     "statusApproved": "Approved",
     "statusRejected": "Rejected",
-    "statusAll": "All"
+    "statusAll": "All",
+    "packageCreateTitle": "Create service package",
+    "packageEditTitle": "Edit package {code}",
+    "packageListTitle": "Active packages",
+    "packageCode": "Package code",
+    "packageLabel": "Package name",
+    "packageTier": "Package tier",
+    "packageQuota": "Posts / Images / Videos",
+    "quotaPosts": "Posts",
+    "quotaImages": "Images",
+    "quotaVideos": "Videos",
+    "sortOrder": "Sort order",
+    "packageCreate": "Create package",
+    "packageUpdate": "Save package",
+    "packageReset": "New package",
+    "packageEdit": "Edit",
+    "packageDeactivate": "Hide",
+    "packageEmpty": "No active packages.",
+    "packageCreateSuccess": "Service package created.",
+    "packageUpdateSuccess": "Service package updated.",
+    "packageDeactivateSuccess": "Package hidden from catalog."
   },
   "adminProgress": {
     "nav": "Package progress",
@@ -273,7 +406,16 @@
     "images": "Completed images",
     "videos": "Completed videos",
     "save": "Save progress",
-    "saveSuccess": "Progress updated for {user}."
+    "saveSuccess": "Progress updated for {user}.",
+    "deploymentStatus": "Deployment status",
+    "percent": "Percent",
+    "completed": "Completed",
+    "target": "Target",
+    "deployment": {
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "PAUSED": "Paused"
+    }
   },
   "dashboard": {
     "title": "Customer Service",
@@ -288,5 +430,14 @@
     "delete": "Delete",
     "empty": "No customers yet.",
     "notChecked": "Not checked"
+  },
+  "schedule": {
+    "subtitle": "Track daily tasks by date",
+    "date": "Date",
+    "task": "Task",
+    "service": "Related service",
+    "status": "Status",
+    "note": "Note",
+    "noNote": "No note"
   }
 }

@@ -7,6 +7,7 @@ frontend/android/app/build/
 frontend/android/build/
 frontend/android/local.properties
 frontend/.env.capacitor.local
+apk-download/
 .idea/
 *.iml
 .DS_Store

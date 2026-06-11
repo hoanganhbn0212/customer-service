@@ -13,8 +13,21 @@ public interface ContentReviewRepository extends JpaRepository<ContentReviewEnti
             String status
     );
 
+    Optional<ContentReviewEntity> findByDeliverableIdAndUserIdAndStatusAndReviewType(
+            UUID deliverableId,
+            String userId,
+            String status,
+            String reviewType
+    );
+
     Optional<ContentReviewEntity> findFirstByDeliverableIdAndUserIdOrderByUpdatedAtDesc(
             UUID deliverableId,
             String userId
+    );
+
+    Optional<ContentReviewEntity> findFirstByDeliverableIdAndUserIdAndReviewTypeOrderByUpdatedAtDesc(
+            UUID deliverableId,
+            String userId,
+            String reviewType
     );
 }

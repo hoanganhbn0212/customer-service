@@ -74,10 +74,15 @@ public class AdminProgressService {
                     created.setSubscriptionId(subscriptionId);
                     return created;
                 });
-        progress.setCompletedPosts(Math.max(0, request.completedPosts()));
-        progress.setCompletedImages(Math.max(0, request.completedImages()));
-        progress.setCompletedVideos(Math.max(0, request.completedVideos()));
+        progress.setCompletedPosts(clampCount(request.completedPosts(), sub.getServicePackage().getQuotaPosts()));
+        progress.setCompletedImages(clampCount(request.completedImages(), sub.getServicePackage().getQuotaImages()));
+        progress.setCompletedVideos(clampCount(request.completedVideos(), sub.getServicePackage().getQuotaVideos()));
         subscriptionProgressRepository.save(progress);
+
+        if (request.deploymentStatus() != null && !request.deploymentStatus().isBlank()) {
+            sub.setDeploymentStatus(normalizeDeploymentStatus(request.deploymentStatus()));
+            userSubscriptionRepository.save(sub);
+        }
 
         if (request.serviceProgress() != null && !request.serviceProgress().isEmpty()) {
             Set<String> allowedServices = packageServiceItemRepository.findByPackageCode(sub.getPackageCode()).stream()
@@ -94,12 +99,52 @@ public class AdminProgressService {
                             created.setId(id);
                             return created;
                         });
-                row.setPercent(clampPercent(serviceUpdate.percent()));
+                Integer targetCount = serviceUpdate.targetCount() == null
+                        ? row.getTargetCount()
+                        : nonNegativeOrNull(serviceUpdate.targetCount());
+                Integer completedCount = serviceUpdate.completedCount() == null
+                        ? row.getCompletedCount()
+                        : clampNullableCount(serviceUpdate.completedCount(), targetCount);
+                row.setTargetCount(targetCount);
+                row.setCompletedCount(completedCount);
+                row.setPercent(resolveServicePercent(serviceUpdate.percent(), completedCount, targetCount));
                 subscriptionServiceProgressRepository.save(row);
             }
         }
 
         return toDto(sub);
+    }
+
+    private int clampCount(Integer value, int max) {
+        int normalized = value == null ? 0 : Math.max(0, value);
+        return max > 0 ? Math.min(normalized, max) : normalized;
+    }
+
+    private Integer clampNullableCount(Integer value, Integer max) {
+        if (value == null) {
+            return null;
+        }
+        int normalized = Math.max(0, value);
+        return max != null && max > 0 ? Math.min(normalized, max) : normalized;
+    }
+
+    private Integer nonNegativeOrNull(Integer value) {
+        return value == null ? null : Math.max(0, value);
+    }
+
+    private int resolveServicePercent(Integer percent, Integer completedCount, Integer targetCount) {
+        if (targetCount != null && targetCount > 0 && completedCount != null) {
+            return Math.min(100, Math.round((completedCount * 100f) / targetCount));
+        }
+        return clampPercent(percent);
+    }
+
+    private String normalizeDeploymentStatus(String value) {
+        String normalized = value.trim().toUpperCase();
+        if (!"IN_PROGRESS".equals(normalized) && !"COMPLETED".equals(normalized) && !"PAUSED".equals(normalized)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_DEPLOYMENT_STATUS");
+        }
+        return normalized;
     }
 
     private int clampPercent(Integer value) {
@@ -118,8 +163,10 @@ public class AdminProgressService {
                 });
 
         Map<String, Integer> servicePercent = new HashMap<>();
+        Map<String, SubscriptionServiceProgressEntity> serviceRows = new HashMap<>();
         for (SubscriptionServiceProgressEntity row : subscriptionServiceProgressRepository.findBySubscriptionId(sub.getId())) {
             servicePercent.put(row.getId().getServiceId(), row.getPercent());
+            serviceRows.put(row.getId().getServiceId(), row);
         }
 
         Map<String, ServiceDefinitionEntity> defsById = new HashMap<>();
@@ -132,12 +179,15 @@ public class AdminProgressService {
         for (PackageServiceItemEntity link : serviceLinks) {
             String serviceId = link.getId().getServiceId();
             ServiceDefinitionEntity def = defsById.get(serviceId);
+            SubscriptionServiceProgressEntity serviceRow = serviceRows.get(serviceId);
             services.add(new AdminServiceProgressDto(
                     serviceId,
                     def != null ? def.getName() : serviceId,
                     def != null ? def.getProgressMode() : "STATUS",
                     def != null ? def.getQuotaKey() : null,
-                    servicePercent.getOrDefault(serviceId, 0)
+                    servicePercent.getOrDefault(serviceId, 0),
+                    serviceRow != null ? serviceRow.getCompletedCount() : null,
+                    serviceRow != null ? serviceRow.getTargetCount() : null
             ));
         }
 
@@ -148,9 +198,13 @@ public class AdminProgressService {
                 userName,
                 sub.getPackageCode(),
                 sub.getServicePackage() != null ? sub.getServicePackage().getLabel() : sub.getPackageCode(),
+                sub.getDeploymentStatus(),
                 overall.getCompletedPosts(),
                 overall.getCompletedImages(),
                 overall.getCompletedVideos(),
+                sub.getServicePackage().getQuotaPosts(),
+                sub.getServicePackage().getQuotaImages(),
+                sub.getServicePackage().getQuotaVideos(),
                 services
         );
     }
@@ -161,9 +215,13 @@ public class AdminProgressService {
             String userName,
             String packageCode,
             String packageLabel,
+            String deploymentStatus,
             int completedPosts,
             int completedImages,
             int completedVideos,
+            int quotaPosts,
+            int quotaImages,
+            int quotaVideos,
             List<AdminServiceProgressDto> services
     ) {
     }
@@ -173,7 +231,9 @@ public class AdminProgressService {
             String serviceName,
             String progressMode,
             String quotaKey,
-            int percent
+            int percent,
+            Integer completedCount,
+            Integer targetCount
     ) {
     }
 
@@ -181,11 +241,17 @@ public class AdminProgressService {
             int completedPosts,
             int completedImages,
             int completedVideos,
+            String deploymentStatus,
             List<UpdateServiceProgressItem> serviceProgress
     ) {
     }
 
-    public record UpdateServiceProgressItem(String serviceId, Integer percent) {
+    public record UpdateServiceProgressItem(
+            String serviceId,
+            Integer percent,
+            Integer completedCount,
+            Integer targetCount
+    ) {
     }
 }
 

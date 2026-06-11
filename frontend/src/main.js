@@ -22,3 +22,11 @@ OpenAPI.BASE = getApiBase();
 OpenAPI.TOKEN = () => getAccessToken() ?? "";
 
 createApp(App).use(router).use(i18n).mount("#app");
+
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      // The app remains usable if the browser blocks service workers.
+    });
+  });
+}

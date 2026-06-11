@@ -56,8 +56,8 @@ public class MobileReviewService {
         String userId = subscriptionAccess.currentUserId();
 
         ContentReviewEntity review = contentReviewRepository
-                .findByDeliverableIdAndUserIdAndStatus(deliverableId, userId, "DRAFT")
-                .orElseGet(() -> newReview(deliverableId, userId));
+                .findByDeliverableIdAndUserIdAndStatusAndReviewType(deliverableId, userId, "DRAFT", reviewType(request.getReviewType()))
+                .orElseGet(() -> newReview(deliverableId, userId, reviewType(request.getReviewType())));
 
         if ("SUBMITTED".equals(review.getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "REVIEW_ALREADY_SUBMITTED");
@@ -73,21 +73,23 @@ public class MobileReviewService {
         requireOwnedDeliverable(deliverableId);
         String userId = subscriptionAccess.currentUserId();
 
-        contentReviewRepository
-                .findByDeliverableIdAndUserIdAndStatus(deliverableId, userId, "SUBMITTED")
-                .ifPresent(existing -> {
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "REVIEW_ALREADY_SUBMITTED");
-                });
-
+        String type = reviewType(request.getReviewType());
         ContentReviewEntity review = contentReviewRepository
-                .findByDeliverableIdAndUserIdAndStatus(deliverableId, userId, "DRAFT")
-                .orElseGet(() -> newReview(deliverableId, userId));
+                .findByDeliverableIdAndUserIdAndStatusAndReviewType(deliverableId, userId, "SUBMITTED", type)
+                .orElseGet(() -> contentReviewRepository
+                        .findByDeliverableIdAndUserIdAndStatusAndReviewType(deliverableId, userId, "DRAFT", type)
+                        .orElseGet(() -> newReview(deliverableId, userId, type)));
 
         applyRequest(review, request.getQualityScore(), request.getComments(), request.getSuggestions());
         review.setStatus("SUBMITTED");
         review.setSubmittedAt(LocalDateTime.now());
 
-        contentReviewRepository.findByDeliverableIdAndUserIdAndStatus(deliverableId, userId, "DRAFT")
+        contentReviewRepository.findByDeliverableIdAndUserIdAndStatusAndReviewType(
+                        deliverableId,
+                        userId,
+                        "DRAFT",
+                        type
+                )
                 .filter(draft -> !draft.getId().equals(review.getId()))
                 .ifPresent(contentReviewRepository::delete);
 
@@ -113,11 +115,20 @@ public class MobileReviewService {
                 .orElse("");
     }
 
-    private ContentReviewEntity newReview(UUID deliverableId, String userId) {
+    private ContentReviewEntity newReview(UUID deliverableId, String userId, String reviewType) {
         ContentReviewEntity review = new ContentReviewEntity();
         review.setDeliverableId(deliverableId);
         review.setUserId(userId);
+        review.setReviewType(reviewType);
         return review;
+    }
+
+    private String reviewType(SaveReviewDraftRequest.ReviewTypeEnum reviewType) {
+        return reviewType == null ? "CONTENT" : reviewType.getValue();
+    }
+
+    private String reviewType(SubmitReviewRequest.ReviewTypeEnum reviewType) {
+        return reviewType == null ? "CONTENT" : reviewType.getValue();
     }
 
     private void applyRequest(ContentReviewEntity review, Integer score, String comments, String suggestions) {

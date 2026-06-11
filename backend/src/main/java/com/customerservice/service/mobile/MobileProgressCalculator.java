@@ -3,6 +3,7 @@ package com.customerservice.service.mobile;
 import com.customerservice.entity.mobile.ServiceDefinitionEntity;
 import com.customerservice.entity.mobile.ServicePackageEntity;
 import com.customerservice.entity.mobile.SubscriptionProgressEntity;
+import com.customerservice.entity.mobile.SubscriptionServiceProgressEntity;
 import com.customerservice.model.ProgressSummary;
 import com.customerservice.model.ServiceProgressItem;
 
@@ -47,7 +48,7 @@ public final class MobileProgressCalculator {
             ServiceDefinitionEntity def,
             ServicePackageEntity pkg,
             SubscriptionProgressEntity progress,
-            int statusPercent
+            SubscriptionServiceProgressEntity serviceProgress
     ) {
         ServiceProgressItem item = new ServiceProgressItem();
         item.setId(def.getId());
@@ -64,7 +65,20 @@ public final class MobileProgressCalculator {
             item.setTotalCount(total);
             item.setPercent(percent);
             item.setStatus(serviceStatusFromPercent(percent));
+        } else if (serviceProgress != null
+                && serviceProgress.getTargetCount() != null
+                && serviceProgress.getTargetCount() > 0) {
+            int completed = serviceProgress.getCompletedCount() == null ? 0 : serviceProgress.getCompletedCount();
+            int total = serviceProgress.getTargetCount();
+            int percent = Math.min(100, Math.round((completed * 100f) / total));
+
+            item.setTrackMode(ServiceProgressItem.TrackModeEnum.QUANTITY);
+            item.setCompletedCount(Math.min(completed, total));
+            item.setTotalCount(total);
+            item.setPercent(percent);
+            item.setStatus(serviceStatusFromPercent(percent));
         } else {
+            int statusPercent = serviceProgress == null ? 0 : serviceProgress.getPercent();
             item.setTrackMode(ServiceProgressItem.TrackModeEnum.STATUS);
             item.setPercent(statusPercent);
             item.setStatus(serviceStatusFromPercent(statusPercent));

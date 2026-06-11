@@ -12,13 +12,16 @@
     "preview:lan": "vite preview --host",
     "build:cap": "npm run gen:api && cross-env CAPACITOR=1 vite build",
     "cap:sync": "npx cap sync android",
+    "cap:sync:ios": "npx cap sync ios",
     "cap:open": "npx cap open android",
+    "cap:open:ios": "npx cap open ios",
     "android:apk": "cd android && gradlew.bat assembleDebug"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.0",
     "@capacitor/app": "^6.0.2",
     "@capacitor/core": "^6.2.0",
+    "@capacitor/ios": "^6.2.0",
     "vue": "^3.4.31",
     "vue-i18n": "^9.14.0",
     "vue-router": "^4.4.0"

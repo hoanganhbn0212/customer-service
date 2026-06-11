@@ -15,6 +15,7 @@ const { t } = useI18n();
 const tabs = [
   { id: "overview", labelKey: "nav.overview", icon: "overview", route: "/home" },
   { id: "services", labelKey: "nav.services", icon: "services", route: "/services" },
+  { id: "schedule", labelKey: "nav.schedule", icon: "calendar", route: "/schedule" },
   { id: "notifications", labelKey: "nav.notifications", icon: "bell", route: "/notifications" },
   { id: "account", labelKey: "nav.account", icon: "account", route: "/account" }
 ];
@@ -60,7 +61,7 @@ const go = (tab) => {
 }
 
 .mobile-screen {
-  --bottom-nav-height: calc(62px + env(safe-area-inset-bottom, 0px));
+  --bottom-nav-height: calc(72px + env(safe-area-inset-bottom, 0px));
 
   width: 100%;
   max-width: 430px;
@@ -143,38 +144,52 @@ const go = (tab) => {
   bottom: 0;
   z-index: 100;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   background: #fff;
   border-top: 1px solid #e6edf5;
-  padding: 8px 6px calc(10px + env(safe-area-inset-bottom, 0));
-  box-shadow: 0 -4px 20px rgba(15, 40, 80, 0.06);
+  padding: 8px 8px calc(10px + env(safe-area-inset-bottom, 0));
+  box-shadow: 0 -10px 28px rgba(15, 40, 80, 0.08);
 }
 
 .tab-btn {
+  min-width: 0;
+  min-height: 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 5px;
   border: none;
   background: transparent;
   color: #94a3b8;
   cursor: pointer;
-  padding: 6px 4px;
-  border-radius: 12px;
+  padding: 7px 3px;
+  border-radius: 16px;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
 }
 
 .tab-btn.active {
   color: #1a6dff;
+  background: #eff6ff;
+}
+
+.tab-btn:active {
+  transform: scale(0.97);
 }
 
 .tab-label {
-  font-size: 0.65rem;
-  font-weight: 700;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1.1;
 }
 
 .tab-icon {
-  width: 22px;
-  height: 22px;
+  width: 21px;
+  height: 21px;
   background: currentColor;
   mask-size: contain;
   mask-repeat: no-repeat;
@@ -187,6 +202,10 @@ const go = (tab) => {
 
 .tab-icon[data-icon="services"] {
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h10v2H4v-2z'/%3E%3C/svg%3E");
+}
+
+.tab-icon[data-icon="calendar"] {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='black' d='M7 2h2v3h6V2h2v3h3a2 2 0 012 2v13a2 2 0 01-2 2H4a2 2 0 01-2-2V7a2 2 0 012-2h3V2zm13 8H4v10h16V10zM4 8h16V7H4v1z'/%3E%3C/svg%3E");
 }
 
 .tab-icon[data-icon="bell"] {

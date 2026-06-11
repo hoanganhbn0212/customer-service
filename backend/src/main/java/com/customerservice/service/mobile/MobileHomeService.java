@@ -57,9 +57,9 @@ public class MobileHomeService {
         SubscriptionProgressEntity progress = progressRepository.findById(subscriptionId)
                 .orElseGet(() -> emptyProgress(subscriptionId));
 
-        Map<String, Integer> percentByService = new HashMap<>();
+        Map<String, SubscriptionServiceProgressEntity> progressByService = new HashMap<>();
         for (SubscriptionServiceProgressEntity row : serviceProgressRepository.findBySubscriptionId(subscriptionId)) {
-            percentByService.put(row.getId().getServiceId(), row.getPercent());
+            progressByService.put(row.getId().getServiceId(), row);
         }
 
         List<ServiceProgressItem> services = packageServiceItemRepository.findByPackageCode(pkg.getCode()).stream()
@@ -68,7 +68,7 @@ public class MobileHomeService {
                         def,
                         pkg,
                         progress,
-                        percentByService.getOrDefault(def.getId(), 0)
+                        progressByService.get(def.getId())
                 ))
                 .toList();
 

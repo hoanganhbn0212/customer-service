@@ -32,7 +32,8 @@
     "overview": "Tổng quan",
     "services": "Dịch vụ",
     "notifications": "Thông báo",
-    "account": "Tài khoản"
+    "account": "Tài khoản",
+    "schedule": "Lịch trình"
   },
   "account": {
     "logout": "Đăng xuất",
@@ -51,7 +52,38 @@
     "upgradeSubmitted": "Yêu cầu đã gửi — trạng thái: {status}",
     "vouchersTitle": "Voucher của tôi",
     "vouchersEmpty": "Chưa có voucher.",
-    "voucherExpires": "Hết hạn: {date}"
+    "voucherExpires": "Hết hạn: {date}",
+    "secureProfile": "Hồ sơ bảo mật",
+    "businessName": "Tên doanh nghiệp",
+    "fanpageName": "Fanpage đang quản lý",
+    "packageName": "Gói dịch vụ hiện tại",
+    "packageStart": "Ngày bắt đầu gói",
+    "packageEnd": "Ngày hết hạn gói",
+    "accountStatus": "Trạng thái tài khoản",
+    "statusActive": "Còn hạn",
+    "statusInactive": "Tạm khóa",
+    "statusExpired": "Hết hạn",
+    "upgradeIntro": "Gói hiện tại: {current}. Anh/chị có thể chọn gói cao hơn bên dưới.",
+    "defaultBenefits": "Mở rộng quyền lợi và tăng năng lực triển khai nội dung.",
+    "packageMediaImages": "{images} ảnh",
+    "packageMediaWithVideo": "{images} ảnh, {videos} video",
+    "contactPrice": "Liên hệ",
+    "postsCount": "{count} bài viết",
+    "upgradeFormTitle": "Gửi yêu cầu nâng cấp",
+    "upgradeMessage": "Lời nhắn",
+    "upgradeMessagePlaceholder": "Nhập yêu cầu hoặc ghi chú thêm cho công ty...",
+    "sendRequest": "Gửi yêu cầu",
+    "requestSent": "Đã gửi",
+    "saveLocalHint": "Đã cập nhật tạm thời trên giao diện. Backend chưa lưu thay đổi.",
+    "voucherValue": "Ưu đãi",
+    "voucherCondition": "Điều kiện sử dụng",
+    "voucherExpiry": "Hạn sử dụng",
+    "noCondition": "Không có điều kiện",
+    "voucherStatus": {
+      "active": "Còn hạn",
+      "used": "Đã dùng",
+      "expired": "Hết hạn"
+    }
   },
   "home": {
     "overview": "Tổng quan",
@@ -61,11 +93,24 @@
     "packageBasic30": "Chăm sóc Fanpage Basic 30",
     "tierPro": "Gói Pro",
     "tierBasic": "Gói Basic",
+    "packageTierPremium": "cao cấp",
+    "packageTierBasic": "cơ bản",
+    "packageTypeLabel": "Loại gói",
+    "packageType": "{posts} bài {tier}",
+    "packagePosts": "Bài viết",
+    "packageMedia": "Ảnh / video",
+    "packageLifecycle": "Hiệu lực",
+    "mediaQuotaImages": "{images} ảnh",
+    "mediaQuotaWithVideo": "{images} ảnh, {videos} video",
     "overallProgress": "Tiến độ tổng thể",
     "completionLabel": "Tiến độ hoàn thành",
     "progressFormula": "{completed}/{total} hạng mục đã hoàn thành",
+    "progressPosts": "Bài viết",
+    "progressImages": "Ảnh thiết kế",
+    "progressVideos": "Video",
     "statusDone": "Hoàn thành",
-    "statusProgress": "Đang thực hiện",
+    "statusProgress": "Đang triển khai",
+    "statusPaused": "Tạm dừng",
     "statusPending": "Chưa bắt đầu",
     "statusOnlyHint": "Theo trạng thái",
     "pkgActive": "Đang hiệu lực",
@@ -103,6 +148,8 @@
     "empty": "Gói hiện tại chưa có dịch vụ.",
     "emptyTasks": "Không có hạng mục trong bộ lọc này.",
     "filterLabel": "Lọc hạng mục",
+    "progress": "Tiến độ",
+    "viewDetail": "Xem chi tiết",
     "contentDetailHint": "Nội dung chi tiết (khung ý tưởng / bảng triển khai) sẽ mở ở bước tiếp theo.",
     "packageInfoIntro": "Các hạng mục được bao gồm trong gói dịch vụ hiện tại của bạn:",
     "activeTitle": {
@@ -110,8 +157,8 @@
       "basic": "Gói nội dung cơ bản"
     },
     "tab": {
-      "implementation": "Danh sách triển khai",
-      "packageInfo": "Thông tin gói"
+      "implementation": "Chi tiết triển khai",
+      "packageInfo": "Danh sách dịch vụ"
     },
     "filter": {
       "all": "Tất cả",
@@ -145,6 +192,48 @@
     "extra": {
       "cover": "Ảnh bìa / Avatar",
       "like": "Like / Follow"
+    },
+    "proList": {
+      "content": "Nội dung",
+      "media": "Design / Video"
+    },
+    "contentSheet": {
+      "title": "Bảng quản lý nội dung",
+      "eyebrow": "Chi tiết dịch vụ",
+      "back": "Quay lại",
+      "no": "STT",
+      "publishDate": "Ngày đăng dự kiến",
+      "topic": "Chủ đề",
+      "ideaFrame": "Khung ý tưởng",
+      "postContent": "Nội dung bài viết",
+      "status": "Trạng thái",
+      "attachment": "File đính kèm",
+      "contentScore": "Đánh giá Content",
+      "customerComment": "Nhận xét của khách hàng",
+      "improvement": "Gợi ý cải thiện",
+      "openFile": "Xem file"
+    },
+    "contentStatus": {
+      "not_started": "Chưa làm",
+      "doing": "Đang làm",
+      "waiting_customer": "Chờ khách duyệt",
+      "needs_revision": "Cần chỉnh sửa",
+      "completed": "Đã hoàn thiện",
+      "published": "Đã đăng"
+    },
+    "mediaSheet": {
+      "title": "Danh sách thiết kế / video",
+      "eyebrow": "Chi tiết Design / Video",
+      "completedDate": "Ngày hoàn thiện",
+      "name": "Tên thiết kế / video",
+      "type": "Loại",
+      "preview": "Link xem trước",
+      "designScore": "Đánh giá Design / Video",
+      "openPreview": "Mở preview"
+    },
+    "mediaType": {
+      "image": "Ảnh",
+      "video": "Video"
     }
   },
   "review": {
@@ -172,10 +261,15 @@
       "seo": "Từ khóa tự nhiên, cấu trúc heading hợp lý. Nên rút gọn đoạn mở đầu.",
       "writePosts": "Giọng văn phù hợp thương hiệu. Một vài câu nên ngắn gọn hơn.",
       "designImages": "Màu sắc đồng bộ fanpage. Font chữ dễ đọc trên mobile."
-    }
+    },
+    "openForm": "Đánh giá",
+    "close": "Đóng",
+    "scoreDropdown": "Điểm đánh giá",
+    "contentTitle": "Đánh giá Content",
+    "designVideoTitle": "Đánh giá Design / Video"
   },
   "notifications": {
-    "subtitle": "Cập nhật theo gói dịch vụ của bạn",
+    "subtitle": "Nơi công ty gửi phản hồi và thông tin cho khách hàng",
     "empty": "Không có thông báo.",
     "typeFeedback": "Phản hồi",
     "typePromo": "Khuyến mãi",
@@ -189,6 +283,24 @@
       "reportBody": "Báo cáo hiệu suất fanpage đã được gửi.",
       "post": "Bài đăng mới",
       "postBody": "Bài đăng hôm nay đã được lên lịch."
+    },
+    "sentAt": "Thời gian gửi",
+    "typeLabel": "Loại thông báo",
+    "status": {
+      "read": "Đã đọc",
+      "unread": "Chưa đọc"
+    },
+    "type": {
+      "FEEDBACK_REPLY": "Phản hồi feedback",
+      "CONTENT_DONE": "Bài viết đã hoàn thiện",
+      "MEDIA_DONE": "Ảnh/video đã hoàn thiện",
+      "APPROVAL_REQUIRED": "Cần duyệt nội dung",
+      "OFFER": "Chương trình ưu đãi",
+      "PROMOTION": "Khuyến mại",
+      "SCHEDULE_REMINDER": "Gợi ý nhắc lịch",
+      "PROGRESS_REMINDER": "Nhắc kiểm tra tiến độ",
+      "SCHEDULE": "Lịch",
+      "INFO": "Thông tin"
     }
   },
   "theme": {
@@ -235,6 +347,7 @@
     "subtitle": "Gán gói cho khách hàng và duyệt yêu cầu nâng cấp.",
     "tabAssign": "Gán gói",
     "tabUpgrades": "Yêu cầu nâng cấp",
+    "tabPackages": "Danh mục gói",
     "assignTitle": "Gán gói cho người dùng",
     "selectUser": "Chọn người dùng",
     "selectUserPlaceholder": "— Chọn user —",
@@ -261,7 +374,27 @@
     "statusPending": "Chờ duyệt",
     "statusApproved": "Đã duyệt",
     "statusRejected": "Đã từ chối",
-    "statusAll": "Tất cả"
+    "statusAll": "Tất cả",
+    "packageCreateTitle": "Tạo gói dịch vụ",
+    "packageEditTitle": "Sửa gói {code}",
+    "packageListTitle": "Danh sách gói đang hoạt động",
+    "packageCode": "Mã gói",
+    "packageLabel": "Tên gói",
+    "packageTier": "Loại gói",
+    "packageQuota": "Bài / Ảnh / Video",
+    "quotaPosts": "Số bài",
+    "quotaImages": "Số ảnh",
+    "quotaVideos": "Số video",
+    "sortOrder": "Thứ tự hiển thị",
+    "packageCreate": "Tạo gói",
+    "packageUpdate": "Lưu gói",
+    "packageReset": "Nhập mới",
+    "packageEdit": "Sửa",
+    "packageDeactivate": "Ẩn",
+    "packageEmpty": "Chưa có gói đang hoạt động.",
+    "packageCreateSuccess": "Đã tạo gói dịch vụ.",
+    "packageUpdateSuccess": "Đã cập nhật gói dịch vụ.",
+    "packageDeactivateSuccess": "Đã ẩn gói khỏi danh mục."
   },
   "adminProgress": {
     "nav": "Tiến độ gói",
@@ -273,7 +406,16 @@
     "images": "Hình ảnh hoàn thành",
     "videos": "Video hoàn thành",
     "save": "Lưu tiến độ",
-    "saveSuccess": "Đã cập nhật tiến độ cho {user}."
+    "saveSuccess": "Đã cập nhật tiến độ cho {user}.",
+    "deploymentStatus": "Trạng thái triển khai",
+    "percent": "Phần trăm",
+    "completed": "Đã xong",
+    "target": "Tổng cần làm",
+    "deployment": {
+      "IN_PROGRESS": "Đang triển khai",
+      "COMPLETED": "Hoàn thành",
+      "PAUSED": "Tạm dừng"
+    }
   },
   "dashboard": {
     "title": "Dịch vụ khách hàng",
@@ -288,5 +430,14 @@
     "delete": "Xóa",
     "empty": "Chưa có khách hàng.",
     "notChecked": "Chưa kiểm tra"
+  },
+  "schedule": {
+    "subtitle": "Theo dõi lịch công việc theo từng ngày",
+    "date": "Ngày",
+    "task": "Công việc cần làm",
+    "service": "Dịch vụ liên quan",
+    "status": "Trạng thái",
+    "note": "Ghi chú",
+    "noNote": "Không có ghi chú"
   }
 }

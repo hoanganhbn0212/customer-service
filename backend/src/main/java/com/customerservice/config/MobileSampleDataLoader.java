@@ -132,8 +132,16 @@ public class MobileSampleDataLoader implements ApplicationRunner {
     private void seedPackageLinks() {
         link("BASIC_15", "posts", "design");
         link("BASIC_30", "posts", "design");
-        link("PRO_15", "posts", "design", "video", "fanpage", "content", "ads", "report", "cover", "like");
-        link("PRO_30", "posts", "design", "video", "fanpage", "content", "ads", "report", "cover", "like");
+        unlink("PRO_15", "content");
+        unlink("PRO_30", "content");
+        link("PRO_15", "posts", "design", "video", "fanpage", "ads", "report", "cover", "like");
+        link("PRO_30", "posts", "design", "video", "fanpage", "ads", "report", "cover", "like");
+    }
+
+    private void unlink(String pkg, String... serviceIds) {
+        for (String serviceId : serviceIds) {
+            packageServiceItemRepository.deleteById(new PackageServiceItemId(pkg, serviceId));
+        }
     }
 
     private void link(String pkg, String... serviceIds) {

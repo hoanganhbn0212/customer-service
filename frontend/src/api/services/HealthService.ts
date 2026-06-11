@@ -6,11 +6,11 @@ import type { HealthResponse } from '../models/HealthResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-/** Kiểm tra backend sống. */
 export class HealthService {
     /**
-     * GET /api/health — Trạng thái service (UP/DOWN).
-     * @usedBy views/DashboardView.vue
+     * Health check endpoint
+     * @returns HealthResponse Service is alive
+     * @throws ApiError
      */
     public static getHealth(): CancelablePromise<HealthResponse> {
         return __request(OpenAPI, {

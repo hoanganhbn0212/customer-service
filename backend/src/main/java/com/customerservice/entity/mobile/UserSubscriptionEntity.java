@@ -36,6 +36,9 @@ public class UserSubscriptionEntity {
     @Column(nullable = false, length = 20)
     private String status = "ACTIVE";
 
+    @Column(name = "deployment_status", nullable = false, length = 20)
+    private String deploymentStatus = "IN_PROGRESS";
+
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
@@ -85,12 +88,24 @@ public class UserSubscriptionEntity {
         return servicePackage;
     }
 
+    public void setServicePackage(ServicePackageEntity servicePackage) {
+        this.servicePackage = servicePackage;
+    }
+
     public String getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getDeploymentStatus() {
+        return deploymentStatus;
+    }
+
+    public void setDeploymentStatus(String deploymentStatus) {
+        this.deploymentStatus = deploymentStatus;
     }
 
     public LocalDate getStartDate() {

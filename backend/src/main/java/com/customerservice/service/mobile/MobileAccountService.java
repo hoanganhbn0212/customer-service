@@ -113,8 +113,11 @@ public class MobileAccountService {
     @Transactional
     public PackageUpgradeResponse requestUpgrade(PackageUpgradeRequest request) {
         String userId = subscriptionAccess.currentUserId();
-        servicePackageRepository.findById(request.getToPackageCode())
+        ServicePackageEntity targetPackage = servicePackageRepository.findById(request.getToPackageCode())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "INVALID_PACKAGE"));
+        if (!targetPackage.isActive()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "INACTIVE_PACKAGE");
+        }
 
         UserSubscriptionEntity current = subscriptionAccess.requireActiveSubscription();
 

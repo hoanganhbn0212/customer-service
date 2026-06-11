@@ -45,6 +45,26 @@ export function listAdminPackages() {
   return adminFetch("/api/v1/admin/packages");
 }
 
+export function createAdminPackage(body) {
+  return adminFetch("/api/v1/admin/packages", {
+    method: "POST",
+    body: JSON.stringify(body)
+  });
+}
+
+export function updateAdminPackage(code, body) {
+  return adminFetch(`/api/v1/admin/packages/${encodeURIComponent(code)}`, {
+    method: "PUT",
+    body: JSON.stringify(body)
+  });
+}
+
+export function deactivateAdminPackage(code) {
+  return adminFetch(`/api/v1/admin/packages/${encodeURIComponent(code)}`, {
+    method: "DELETE"
+  });
+}
+
 /**
  * POST /api/v1/admin/users/{userId}/subscription
  * Gán gói active cho user (packageCode, displayTitle, startDate, endDate).

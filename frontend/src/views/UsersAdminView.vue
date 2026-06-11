@@ -225,6 +225,8 @@ onMounted(loadUsers);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-bottom: 12px;
 }
 
@@ -237,6 +239,9 @@ onMounted(loadUsers);
 
 input,
 select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 10px 12px;
   border: 1px solid #dee2e6;
   border-radius: 8px;
@@ -262,9 +267,21 @@ select {
 }
 
 .user-table {
+  display: block;
   width: 100%;
+  min-width: 0;
+  overflow-x: auto;
   border-collapse: collapse;
   font-size: 0.9rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.user-table thead,
+.user-table tbody {
+  min-width: 620px;
+  display: table;
+  width: 100%;
+  table-layout: fixed;
 }
 
 .user-table th,
@@ -272,6 +289,7 @@ select {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #f0f3f5;
+  word-break: break-word;
 }
 
 .badge {
@@ -311,5 +329,19 @@ select {
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 700px) {
+  .card {
+    padding: 16px;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

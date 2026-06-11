@@ -4,6 +4,7 @@ import com.customerservice.api.AdminApi;
 import com.customerservice.model.AdminAssignSubscriptionRequest;
 import com.customerservice.model.AdminCreateUserRequest;
 import com.customerservice.model.AdminUpdateUserRequest;
+import com.customerservice.model.AdminUpsertPackageRequest;
 import com.customerservice.model.SubscriptionSummary;
 import com.customerservice.model.UserAccountResponse;
 import com.customerservice.model.PackageCatalogItem;
@@ -16,6 +17,11 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -78,6 +84,28 @@ public class AdminUserApiController implements AdminApi {
     @Override
     public ResponseEntity<List<PackageCatalogItem>> listAdminPackages() {
         return ResponseEntity.ok(adminPackageAdminService.listPackages());
+    }
+
+    /** POST /api/v1/admin/packages — Tạo gói dịch vụ. */
+    @PostMapping("/api/v1/admin/packages")
+    public ResponseEntity<PackageCatalogItem> createPackage(@RequestBody AdminUpsertPackageRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(adminPackageAdminService.createPackage(request));
+    }
+
+    /** PUT /api/v1/admin/packages/{code} — Cập nhật tên/quota/trạng thái gói. */
+    @PutMapping("/api/v1/admin/packages/{code}")
+    public ResponseEntity<PackageCatalogItem> updatePackage(
+            @PathVariable("code") String code,
+            @RequestBody AdminUpsertPackageRequest request
+    ) {
+        return ResponseEntity.ok(adminPackageAdminService.updatePackage(code, request));
+    }
+
+    /** DELETE /api/v1/admin/packages/{code} — Ẩn gói khỏi danh mục chọn. */
+    @DeleteMapping("/api/v1/admin/packages/{code}")
+    public ResponseEntity<Void> deactivatePackage(@PathVariable("code") String code) {
+        adminPackageAdminService.deactivatePackage(code);
+        return ResponseEntity.noContent().build();
     }
 
     /** GET /api/v1/admin/package-upgrade-requests */

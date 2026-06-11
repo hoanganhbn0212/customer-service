@@ -19,8 +19,10 @@ const {
   overallPercent,
   overallCompleted,
   overallTotal,
+  progressBreakdown,
   overallStatus,
   subscriptionStatus,
+  dashboardStatus,
   services,
   weekDays,
   tasksForSelectedDay,
@@ -45,7 +47,7 @@ onMounted(async () => {
   }
 });
 
-const packageLabel = (p) => subscriptionTitle.value || t(p.labelKey);
+const packageLabel = (p) => subscriptionTitle.value || p.label || t(p.labelKey);
 const serviceName = (item) => item.name || t(item.nameKey);
 const taskTitle = (task) => task.title || t(task.titleKey);
 const serviceTrackMode = (item) => String(item.trackMode || "").toLowerCase();
@@ -60,7 +62,25 @@ const formatDate = (iso) => {
 const statusLabel = (status) => {
   if (status === "done") return t("home.statusDone");
   if (status === "progress") return t("home.statusProgress");
+  if (status === "paused") return t("home.statusPaused");
   return t("home.statusPending");
+};
+
+const packageTypeLabel = (p) => {
+  const tierKey = p.tier === "PRO" ? "home.packageTierPremium" : "home.packageTierBasic";
+  return t("home.packageType", {
+    posts: p.quotaPosts ?? 0,
+    tier: t(tierKey)
+  });
+};
+
+const mediaQuotaLabel = (p) => {
+  const images = p.quotaImages ?? 0;
+  const videos = p.quotaVideos ?? 0;
+  if (videos > 0) {
+    return t("home.mediaQuotaWithVideo", { images, videos });
+  }
+  return t("home.mediaQuotaImages", { images });
 };
 
 const packageStatusLabel = (status) => {
@@ -109,9 +129,23 @@ const goNotifications = () => router.push("/notifications");
           <span class="package-text">
             <span class="package-row">
               <strong>{{ packageLabel(pkg) }}</strong>
-              <span class="tier-pill">{{ t(pkg.tierKey) }}</span>
-              <span class="status-pill" :class="subscriptionStatus.toLowerCase()">
-                {{ packageStatusLabel(subscriptionStatus) }}
+              <span class="tier-pill">{{ t("home.packageTypeLabel") }}: {{ packageTypeLabel(pkg) }}</span>
+              <span class="status-pill" :class="dashboardStatus">
+                {{ statusLabel(dashboardStatus) }}
+              </span>
+            </span>
+            <span class="package-meta-grid">
+              <span>
+                <small>{{ t("home.packagePosts") }}</small>
+                <b>{{ pkg.quotaPosts ?? 0 }}</b>
+              </span>
+              <span>
+                <small>{{ t("home.packageMedia") }}</small>
+                <b>{{ mediaQuotaLabel(pkg) }}</b>
+              </span>
+              <span>
+                <small>{{ t("home.packageLifecycle") }}</small>
+                <b>{{ packageStatusLabel(subscriptionStatus) }}</b>
               </span>
             </span>
             <span class="package-date">
@@ -153,6 +187,15 @@ const goNotifications = () => router.push("/notifications");
             </p>
             <div class="bar-track">
               <div class="bar-fill" :style="{ width: `${overallPercent}%` }" />
+            </div>
+            <div class="progress-breakdown">
+              <div v-for="row in progressBreakdown" :key="row.id" class="progress-row">
+                <span>{{ t(row.labelKey) }}</span>
+                <strong>{{ row.completed }}/{{ row.total }}</strong>
+                <div class="bar-track tiny">
+                  <div class="bar-fill" :style="{ width: `${row.percent}%` }" />
+                </div>
+              </div>
             </div>
             <p class="status-line" :class="overallStatus">
               <span class="status-dot" :class="overallStatus" />
@@ -240,6 +283,60 @@ const goNotifications = () => router.push("/notifications");
   font-size: 0.82rem;
 }
 
+.package-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.package-meta-grid span {
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 8px;
+}
+
+.package-meta-grid small {
+  display: block;
+  color: #64748b;
+  font-size: 0.68rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.package-meta-grid b {
+  display: block;
+  color: #0f172a;
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.progress-breakdown {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.progress-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 12px;
+  align-items: center;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.progress-row strong {
+  color: #1e40af;
+}
+
+.bar-track.tiny {
+  grid-column: 1 / -1;
+  height: 6px;
+  margin: 0;
+}
+
 .svc-row {
   display: flex;
   gap: 10px;
@@ -282,6 +379,21 @@ const goNotifications = () => router.push("/notifications");
   color: #166534;
 }
 
+.status-pill.progress {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.status-pill.done {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-pill.paused {
+  background: #fef3c7;
+  color: #92400e;
+}
+
 .status-pill.expired,
 .status-pill.cancelled {
   background: #fee2e2;
@@ -291,5 +403,11 @@ const goNotifications = () => router.push("/notifications");
 .status-pill.mini {
   font-size: 0.68rem;
   padding: 2px 8px;
+}
+
+@media (max-width: 420px) {
+  .package-meta-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

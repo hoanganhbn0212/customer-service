@@ -42,18 +42,21 @@ public final class MobileDtoMapper {
 
     public static SubscriptionSummary toSubscriptionSummary(UserSubscriptionEntity sub) {
         ServicePackageEntity pkg = sub.getServicePackage();
+        String packageCode = sub.getPackageCode();
+        String fallbackTier = packageCode != null && packageCode.toUpperCase().startsWith("PRO") ? "PRO" : "BASIC";
         SubscriptionSummary dto = new SubscriptionSummary();
         dto.setId(sub.getId());
-        dto.setPackageCode(sub.getPackageCode());
-        dto.setTier(SubscriptionSummary.TierEnum.fromValue(pkg.getTier()));
+        dto.setPackageCode(packageCode);
+        dto.setTier(SubscriptionSummary.TierEnum.fromValue(pkg != null ? pkg.getTier() : fallbackTier));
         dto.setDisplayTitle(
                 sub.getDisplayTitle() != null && !sub.getDisplayTitle().isBlank()
                         ? sub.getDisplayTitle()
-                        : pkg.getLabel()
+                        : pkg != null ? pkg.getLabel() : packageCode
         );
         dto.setStartDate(sub.getStartDate());
         dto.setEndDate(sub.getEndDate());
         dto.setStatus(SubscriptionSummary.StatusEnum.fromValue(sub.getStatus()));
+        dto.setDeploymentStatus(SubscriptionSummary.DeploymentStatusEnum.fromValue(sub.getDeploymentStatus()));
         return dto;
     }
 
@@ -124,7 +127,10 @@ public final class MobileDtoMapper {
     public static ImplementationItem toImplementationItem(
             ImplementationItemEntity entity,
             UUID deliverableId,
-            boolean reviewable
+            boolean reviewable,
+            DeliverableEntity deliverable,
+            ContentReviewEntity contentReview,
+            ContentReviewEntity designReview
     ) {
         ImplementationItem dto = new ImplementationItem();
         dto.setId(entity.getId());
@@ -137,14 +143,106 @@ public final class MobileDtoMapper {
         dto.setUpdatedOn(entity.getUpdatedOn());
         dto.setDeliverableId(deliverableId);
         dto.setReviewable(reviewable);
+        if (deliverable != null) {
+            dto.setPlannedPublishDate(deliverable.getPlannedPublishDate());
+            dto.setTopic(firstText(deliverable.getTopic(), entity.getTitle()));
+            dto.setIdeaFrame(deliverable.getIdeaFrame());
+            dto.setPostContent(deliverable.getPostContent());
+            dto.setContentStatus(ImplementationItem.ContentStatusEnum.fromValue(
+                    firstText(deliverable.getContentStatus(), contentStatusFromImplementation(entity.getStatus()))
+            ));
+            dto.setAttachmentUrl(firstText(deliverable.getAttachmentUrl(), deliverable.getThumbnailUrl()));
+            dto.setCompletedOn(deliverable.getCompletedOn());
+            dto.setMediaName(firstText(deliverable.getMediaName(), entity.getTitle()));
+            if (deliverable.getMediaType() != null && !deliverable.getMediaType().isBlank()) {
+                dto.setMediaType(ImplementationItem.MediaTypeEnum.fromValue(deliverable.getMediaType()));
+            }
+            dto.setPreviewUrl(firstText(deliverable.getPreviewUrl(), deliverable.getThumbnailUrl()));
+            if (deliverable.getTeamContentScore() != null) {
+                dto.setContentScore(deliverable.getTeamContentScore().doubleValue());
+            }
+            if (deliverable.getTeamDesignScore() != null) {
+                dto.setDesignScore(deliverable.getTeamDesignScore().doubleValue());
+            }
+            dto.setDesignCustomerComment(deliverable.getDesignCustomerComment());
+            dto.setDesignImprovementSuggestion(deliverable.getDesignImprovementSuggestion());
+        } else {
+            dto.setTopic(entity.getTitle());
+            dto.setContentStatus(ImplementationItem.ContentStatusEnum.fromValue(
+                    contentStatusFromImplementation(entity.getStatus())
+            ));
+        }
+        if (contentReview != null) {
+            dto.setCustomerComment(contentReview.getComments());
+            dto.setImprovementSuggestion(contentReview.getSuggestions());
+            if (contentReview.getQualityScore() != null) {
+                dto.setContentScore(contentReview.getQualityScore().doubleValue());
+            }
+        }
+        if (designReview != null) {
+            dto.setDesignCustomerComment(designReview.getComments());
+            dto.setDesignImprovementSuggestion(designReview.getSuggestions());
+            if (designReview.getQualityScore() != null) {
+                dto.setDesignScore(designReview.getQualityScore().doubleValue());
+            }
+        }
         return dto;
+    }
+
+    public static ImplementationItem toImplementationItem(
+            ImplementationItemEntity entity,
+            UUID deliverableId,
+            boolean reviewable,
+            DeliverableEntity deliverable,
+            ContentReviewEntity review
+    ) {
+        return toImplementationItem(entity, deliverableId, reviewable, deliverable, review, null);
+    }
+
+    public static ImplementationItem toImplementationItem(
+            ImplementationItemEntity entity,
+            UUID deliverableId,
+            boolean reviewable
+    ) {
+        return toImplementationItem(entity, deliverableId, reviewable, null, null, null);
+    }
+
+    private static String firstText(String primary, String fallback) {
+        return primary != null && !primary.isBlank() ? primary : fallback;
+    }
+
+    private static String contentStatusFromImplementation(String status) {
+        if ("approved".equals(status)) {
+            return "completed";
+        }
+        if ("waiting_feedback".equals(status)) {
+            return "waiting_customer";
+        }
+        if ("in_progress".equals(status)) {
+            return "doing";
+        }
+        return "not_started";
     }
 
     public static PackageServiceInfo toPackageServiceInfo(ServiceDefinitionEntity def) {
         PackageServiceInfo info = new PackageServiceInfo();
         info.setId(def.getId());
         info.setName(def.getName());
+        info.setIcon(def.getIcon());
         info.setDescription(def.getDescription());
+        return info;
+    }
+
+    public static PackageServiceInfo toPackageServiceInfo(
+            ServiceDefinitionEntity def,
+            ServiceProgressItem progress
+    ) {
+        PackageServiceInfo info = toPackageServiceInfo(def);
+        info.setTrackMode(PackageServiceInfo.TrackModeEnum.fromValue(progress.getTrackMode().getValue()));
+        info.setCompletedCount(progress.getCompletedCount());
+        info.setTotalCount(progress.getTotalCount());
+        info.setPercent(progress.getPercent());
+        info.setStatus(PackageServiceInfo.StatusEnum.fromValue(progress.getStatus().getValue()));
         return info;
     }
 
@@ -170,6 +268,7 @@ public final class MobileDtoMapper {
         ContentReviewDto dto = new ContentReviewDto();
         dto.setId(review.getId());
         dto.setQualityScore(review.getQualityScore());
+        dto.setReviewType(ContentReviewDto.ReviewTypeEnum.fromValue(review.getReviewType()));
         dto.setComments(review.getComments());
         dto.setSuggestions(review.getSuggestions());
         dto.setStatus(ContentReviewDto.StatusEnum.fromValue(review.getStatus()));

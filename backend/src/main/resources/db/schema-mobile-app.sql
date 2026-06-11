@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS user_subscriptions (
     user_id         VARCHAR(100) NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
     package_code    VARCHAR(32) NOT NULL REFERENCES service_packages(code),
     status          VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    deployment_status VARCHAR(20) NOT NULL DEFAULT 'IN_PROGRESS',
     start_date      DATE NOT NULL,
     end_date        DATE NOT NULL,
     display_title   VARCHAR(200),
@@ -46,6 +47,8 @@ CREATE TABLE IF NOT EXISTS user_subscriptions (
 
 CREATE INDEX IF NOT EXISTS idx_user_subscriptions_user ON user_subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_subscriptions_active ON user_subscriptions(user_id, status);
+ALTER TABLE user_subscriptions
+    ADD COLUMN IF NOT EXISTS deployment_status VARCHAR(20) NOT NULL DEFAULT 'IN_PROGRESS';
 
 CREATE TABLE IF NOT EXISTS subscription_progress (
     subscription_id UUID PRIMARY KEY REFERENCES user_subscriptions(id) ON DELETE CASCADE,
@@ -54,6 +57,19 @@ CREATE TABLE IF NOT EXISTS subscription_progress (
     completed_videos  INT NOT NULL DEFAULT 0,
     updated_at        TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS subscription_service_progress (
+    subscription_id UUID NOT NULL REFERENCES user_subscriptions(id) ON DELETE CASCADE,
+    service_id      VARCHAR(32) NOT NULL REFERENCES service_definitions(id) ON DELETE CASCADE,
+    percent         INT NOT NULL DEFAULT 0,
+    completed_count INT,
+    target_count    INT,
+    PRIMARY KEY (subscription_id, service_id)
+);
+ALTER TABLE subscription_service_progress
+    ADD COLUMN IF NOT EXISTS completed_count INT;
+ALTER TABLE subscription_service_progress
+    ADD COLUMN IF NOT EXISTS target_count INT;
 
 -- ========== Dịch vụ / triển khai ==========
 CREATE TABLE IF NOT EXISTS implementation_items (
@@ -78,6 +94,17 @@ CREATE TABLE IF NOT EXISTS deliverables (
     implementation_item_id  UUID REFERENCES implementation_items(id) ON DELETE SET NULL,
     subscription_id         UUID NOT NULL REFERENCES user_subscriptions(id) ON DELETE CASCADE,
     post_number             VARCHAR(32) NOT NULL,
+    planned_publish_date    DATE,
+    topic                   VARCHAR(240),
+    idea_frame              TEXT,
+    post_content            TEXT,
+    content_status          VARCHAR(32),
+    attachment_url          TEXT,
+    completed_on            DATE,
+    media_name              VARCHAR(240),
+    media_type              VARCHAR(16),
+    design_customer_comment TEXT,
+    design_improvement_suggestion TEXT,
     thumbnail_url           TEXT,
     preview_url             TEXT,
     team_content_score      NUMERIC(3,1),
@@ -87,10 +114,23 @@ CREATE TABLE IF NOT EXISTS deliverables (
     created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE deliverables ADD COLUMN IF NOT EXISTS planned_publish_date DATE;
+ALTER TABLE deliverables ADD COLUMN IF NOT EXISTS topic VARCHAR(240);
+ALTER TABLE deliverables ADD COLUMN IF NOT EXISTS idea_frame TEXT;
+ALTER TABLE deliverables ADD COLUMN IF NOT EXISTS post_content TEXT;
+ALTER TABLE deliverables ADD COLUMN IF NOT EXISTS content_status VARCHAR(32);
+ALTER TABLE deliverables ADD COLUMN IF NOT EXISTS attachment_url TEXT;
+ALTER TABLE deliverables ADD COLUMN IF NOT EXISTS completed_on DATE;
+ALTER TABLE deliverables ADD COLUMN IF NOT EXISTS media_name VARCHAR(240);
+ALTER TABLE deliverables ADD COLUMN IF NOT EXISTS media_type VARCHAR(16);
+ALTER TABLE deliverables ADD COLUMN IF NOT EXISTS design_customer_comment TEXT;
+ALTER TABLE deliverables ADD COLUMN IF NOT EXISTS design_improvement_suggestion TEXT;
+
 CREATE TABLE IF NOT EXISTS content_reviews (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     deliverable_id  UUID NOT NULL REFERENCES deliverables(id) ON DELETE CASCADE,
     user_id         VARCHAR(100) NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
+    review_type     VARCHAR(20) NOT NULL DEFAULT 'CONTENT',
     quality_score   SMALLINT CHECK (quality_score BETWEEN 1 AND 10),
     comments        TEXT,
     suggestions     TEXT,
@@ -98,12 +138,14 @@ CREATE TABLE IF NOT EXISTS content_reviews (
     submitted_at    TIMESTAMP,
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (deliverable_id, user_id, status)
+    UNIQUE (deliverable_id, user_id, review_type, status)
 );
+
+ALTER TABLE content_reviews ADD COLUMN IF NOT EXISTS review_type VARCHAR(20) NOT NULL DEFAULT 'CONTENT';
 
 -- Chỉ 1 bản SUBMITTED / deliverable / user (partial unique index)
 CREATE UNIQUE INDEX IF NOT EXISTS uq_content_reviews_submitted
-    ON content_reviews(deliverable_id, user_id)
+    ON content_reviews(deliverable_id, user_id, review_type)
     WHERE status = 'SUBMITTED';
 
 -- ========== Lịch công việc (theo ngày) ==========
@@ -174,10 +216,10 @@ CREATE TABLE IF NOT EXISTS user_vouchers (
 
 -- ========== Seed master (idempotent) ==========
 INSERT INTO service_packages (code, tier, label, quota_posts, quota_images, quota_videos, sort_order) VALUES
-    ('BASIC_15', 'BASIC', 'Gói Basic 15 bài', 15, 15, 0, 1),
-    ('PRO_15',   'PRO',   'Gói Pro 15 bài',   15, 10, 5,  2),
-    ('BASIC_30', 'BASIC', 'Gói Basic 30 bài', 30, 30, 0, 3),
-    ('PRO_30',   'PRO',   'Gói Pro 30 bài',   30, 20, 10, 4)
+    ('BASIC_15', 'BASIC', 'Gói 15 cơ bản', 15, 15, 0, 1),
+    ('PRO_15',   'PRO',   'Gói 15 cao cấp', 15, 10, 5,  2),
+    ('BASIC_30', 'BASIC', 'Gói 30 cơ bản', 30, 30, 0, 3),
+    ('PRO_30',   'PRO',   'Gói 30 cao cấp', 30, 20, 10, 4)
 ON CONFLICT (code) DO NOTHING;
 
 INSERT INTO service_definitions (id, icon, name, description, tier_scope, sort_order, progress_mode, quota_key) VALUES
@@ -199,10 +241,10 @@ INSERT INTO package_service_items (package_code, service_id)
 SELECT 'BASIC_30', id FROM service_definitions WHERE id IN ('posts', 'design')
 ON CONFLICT DO NOTHING;
 INSERT INTO package_service_items (package_code, service_id)
-SELECT 'PRO_15', id FROM service_definitions WHERE id IN ('fanpage','content','ads','report','cover','like')
+SELECT 'PRO_15', id FROM service_definitions WHERE id IN ('fanpage','ads','report','cover','like')
 ON CONFLICT DO NOTHING;
 INSERT INTO package_service_items (package_code, service_id)
-SELECT 'PRO_30', id FROM service_definitions WHERE id IN ('fanpage','content','ads','report','cover','like')
+SELECT 'PRO_30', id FROM service_definitions WHERE id IN ('fanpage','ads','report','cover','like')
 ON CONFLICT DO NOTHING;
 INSERT INTO package_service_items (package_code, service_id)
 SELECT 'PRO_15', id FROM service_definitions WHERE id IN ('posts','design','video')
@@ -210,3 +252,5 @@ ON CONFLICT DO NOTHING;
 INSERT INTO package_service_items (package_code, service_id)
 SELECT 'PRO_30', id FROM service_definitions WHERE id IN ('posts','design','video')
 ON CONFLICT DO NOTHING;
+DELETE FROM package_service_items
+WHERE package_code IN ('PRO_15', 'PRO_30') AND service_id = 'content';

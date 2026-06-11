@@ -7,11 +7,11 @@ import type { SaveLoginThemeRequest } from '../models/SaveLoginThemeRequest';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-/** Nội dung tĩnh — theme màn đăng nhập. */
 export class ContentService {
     /**
-     * GET /api/v1/content — Lấy URL ảnh nền header/body màn login (public).
-     * @usedBy views/LoginView.vue, views/LoginThemeAdminView.vue
+     * Get login theme backgrounds (header and body)
+     * @returns LoginThemeResponse Theme backgrounds
+     * @throws ApiError
      */
     public static getLoginTheme(): CancelablePromise<LoginThemeResponse> {
         return __request(OpenAPI, {
@@ -20,8 +20,10 @@ export class ContentService {
         });
     }
     /**
-     * POST /api/v1/content — Lưu ảnh nền login (admin / DEVELOP có quyền sửa trang).
-     * @usedBy views/LoginThemeAdminView.vue
+     * Save login theme backgrounds (admin only)
+     * @param requestBody
+     * @returns LoginThemeResponse Saved
+     * @throws ApiError
      */
     public static saveLoginTheme(
         requestBody: SaveLoginThemeRequest,

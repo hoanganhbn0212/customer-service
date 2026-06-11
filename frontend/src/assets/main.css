@@ -17,6 +17,21 @@ body {
   overscroll-behavior-y: none;
 }
 
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 #app {
   min-height: 100vh;
 }

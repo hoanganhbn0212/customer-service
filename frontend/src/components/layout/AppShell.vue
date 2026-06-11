@@ -106,10 +106,12 @@ const logout = () => {
   min-height: 100vh;
   background: #f1f4f6;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
 }
 
 .sidebar {
   width: 72px;
+  flex: 0 0 72px;
   background: #fff;
   border-right: 1px solid #e8ecef;
   display: flex;
@@ -249,7 +251,41 @@ const logout = () => {
 
 .page-content {
   flex: 1;
+  min-width: 0;
   padding: 24px;
   overflow: auto;
+}
+
+.page-content :deep(.card) {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 700px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid #e8ecef;
+    padding: 8px 12px;
+  }
+
+  .topbar {
+    height: auto;
+    min-height: 56px;
+    padding: 8px 12px;
+  }
+
+  .page-content {
+    padding: 12px;
+  }
 }
 </style>

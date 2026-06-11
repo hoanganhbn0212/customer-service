@@ -1019,7 +1019,7 @@ components:
 
     SubscriptionSummary:
       type: object
-      required: [id, packageCode, tier, displayTitle, startDate, endDate, status]
+      required: [id, packageCode, tier, displayTitle, startDate, endDate, status, deploymentStatus]
       properties:
         id:
           type: string
@@ -1040,6 +1040,9 @@ components:
         status:
           type: string
           enum: [ACTIVE, EXPIRED, CANCELLED]
+        deploymentStatus:
+          type: string
+          enum: [IN_PROGRESS, COMPLETED, PAUSED]
 
     ProgressSummary:
       type: object
@@ -1185,17 +1188,69 @@ components:
           format: uuid
         reviewable:
           type: boolean
+        plannedPublishDate:
+          type: string
+          format: date
+        topic:
+          type: string
+        ideaFrame:
+          type: string
+        postContent:
+          type: string
+        contentStatus:
+          type: string
+          enum: [not_started, doing, waiting_customer, needs_revision, completed, published]
+        attachmentUrl:
+          type: string
+        contentScore:
+          type: number
+          format: double
+        customerComment:
+          type: string
+        improvementSuggestion:
+          type: string
+        completedOn:
+          type: string
+          format: date
+        mediaName:
+          type: string
+        mediaType:
+          type: string
+          enum: [image, video]
+        previewUrl:
+          type: string
+        designScore:
+          type: number
+          format: double
+        designCustomerComment:
+          type: string
+        designImprovementSuggestion:
+          type: string
 
     PackageServiceInfo:
       type: object
-      required: [id, name, description]
+      required: [id, name, description, trackMode, percent, status]
       properties:
         id:
           type: string
         name:
           type: string
+        icon:
+          type: string
         description:
           type: string
+        trackMode:
+          type: string
+          enum: [quantity, status]
+        completedCount:
+          type: integer
+        totalCount:
+          type: integer
+        percent:
+          type: integer
+        status:
+          type: string
+          enum: [pending, progress, done]
 
     MobileServicesResponse:
       type: object
@@ -1243,6 +1298,11 @@ components:
           format: uuid
         qualityScore:
           type: integer
+          minimum: 1
+          maximum: 10
+        reviewType:
+          type: string
+          enum: [CONTENT, DESIGN_VIDEO]
         comments:
           type: string
         suggestions:
@@ -1269,6 +1329,11 @@ components:
       properties:
         qualityScore:
           type: integer
+          minimum: 1
+          maximum: 10
+        reviewType:
+          type: string
+          enum: [CONTENT, DESIGN_VIDEO]
         comments:
           type: string
         suggestions:
@@ -1280,6 +1345,11 @@ components:
       properties:
         qualityScore:
           type: integer
+          minimum: 1
+          maximum: 10
+        reviewType:
+          type: string
+          enum: [CONTENT, DESIGN_VIDEO]
         comments:
           type: string
         suggestions:
