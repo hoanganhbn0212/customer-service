@@ -4,9 +4,10 @@ import { fileURLToPath } from "node:url";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 const frontendRoot = join(dir, "..");
+const defaultBackend = "https://customer-service-api-1hls.onrender.com";
 const backend = (process.env.BACKEND_URL || process.env.VITE_BACKEND_URL || "")
   .trim()
-  .replace(/\/$/, "");
+  .replace(/\/$/, "") || defaultBackend;
 
 const rewrites = [];
 
